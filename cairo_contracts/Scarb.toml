@@ -1,0 +1,8 @@
+[package]
+name = "starknet_homepage_contracts"
+version = "0.1.0"
+
+[dependencies]
+starknet = "=2.0.1"
+
+[[target.starknet-contract]]
