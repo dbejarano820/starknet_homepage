@@ -2,6 +2,10 @@ import Head from 'next/head'
 import { useBlock } from '@starknet-react/core'
 import WalletBar from '../components/WalletBar'
 import Matrix from '../components/Matrix';
+import styles from "../styles/Home.module.css";
+import Switch from "@mui/material/Switch";
+
+const label = { inputProps: { "aria-label": "Switch demo" } };
 
 export default function Home() {
   const { data, isLoading, isError } = useBlock({
@@ -17,19 +21,22 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <p>
-          Get started by editing&nbsp;
-          <code>pages/index.tsx</code>
-        </p>
-        <div>
-          {isLoading
-            ? 'Loading...'
-            : isError
-            ? 'Error while fetching the latest block hash'
-            : `Latest block hash: ${data?.block_hash}`}
+        <div className={styles.container}>
+          <p>
+            Get started by editing&nbsp;
+            <code>pages/index.tsx</code>
+          </p>
+          <div>
+            {isLoading
+              ? 'Loading...'
+              : isError
+              ? 'Error while fetching the latest block hash'
+              : `Latest block hash: ${data?.block_hash}`}
+          </div>
+          <WalletBar />
+          <Switch {...label} defaultChecked />
+          <Matrix />
         </div>
-        <WalletBar />
-        <Matrix />
       </main>
     </>
   )
