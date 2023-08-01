@@ -20,7 +20,6 @@ const Matrix = () => {
   const totalCols = 100;
   const [isSelecting, setIsSelecting] = useState(false);
   const [startCell, setStartCell] = useState({ row: 0, col: 0 });
-  const [endCell, setEndCell] = useState({ row: 0, col: 0 });
   const [selectedCells, setSelectedCells] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [mintPrice, setMintPrice] = useState(0);
@@ -28,7 +27,6 @@ const Matrix = () => {
   const handleMouseDown = (row, col) => {
     setIsSelecting(true);
     setStartCell({ row, col });
-    setEndCell({ row, col });
     setSelectedCells([{ row, col }]);
   };
 
@@ -49,7 +47,6 @@ const Matrix = () => {
 
   const handleMouseEnter = (row, col) => {
     if (isSelecting) {
-      setEndCell({ row, col });
       const newSelectedCells = [];
       for (let r = Math.min(startCell.row, row); r <= Math.max(startCell.row, row); r++) {
         for (let c = Math.min(startCell.col, col); c <= Math.max(startCell.col, col); c++) {
