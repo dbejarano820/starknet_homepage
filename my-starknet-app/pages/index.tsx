@@ -2,16 +2,21 @@ import Head from 'next/head'
 import { useBlock } from '@starknet-react/core'
 import WalletBar from '../components/WalletBar'
 import Matrix from '../components/Matrix';
-import Switch from "@mui/material/Switch";
-import { Container, Box, Divider } from '@mui/material';
-
-const label = { inputProps: { "aria-label": "Switch demo" } };
+import { Container, Grid, Divider, Typography } from '@mui/material';
 
 export default function Home() {
   const { data, isLoading, isError } = useBlock({
     refetchInterval: 3000,
     blockIdentifier: 'latest',
   })
+
+            //   {/* <div>
+            //   {isLoading
+            //     ? 'Loading...'
+            //     : isError
+            //     ? 'Error while fetching the latest block hash'
+            //     : `Latest block hash: ${data?.block_hash}`}
+            // </div> */}
   return (
     <>
       <Head>
@@ -22,19 +27,22 @@ export default function Home() {
       </Head>
       <main>
         <Container fixed>
-          <Box>
-            <h1>Starknet Homepage</h1>
-          </Box>
-          <div>
-            {isLoading
-              ? 'Loading...'
-              : isError
-              ? 'Error while fetching the latest block hash'
-              : `Latest block hash: ${data?.block_hash}`}
-          </div>
-          <Divider sx={{margin: '8px'}}/>
-          <WalletBar />
-          <Switch {...label} defaultChecked />
+          <Grid container direction="column" marginBottom={1}>
+            <Grid container direction="row" alignItems="center">
+              <span>ICON</span>
+              <Typography variant='h2'>Starknet Homepage</Typography>
+            </Grid>
+            <Grid container alignItems="center" gap={1}>
+                <Typography  variant='subtitle1'>1,000,000 pixels</Typography>
+                <Divider orientation="vertical" sx={{borderColor: "black"}} flexItem />
+                <Typography  variant='subtitle1'>0.0001 ETH per pixel</Typography>
+                <Divider orientation="vertical" flexItem sx={{borderColor: "black"}} />
+                <Typography  variant='subtitle1'>Own a piece of Starknet History</Typography>
+              <Grid item>
+                <WalletBar />
+              </Grid>
+            </Grid>
+          </Grid>
           <Matrix />
         </Container>
       </main>
