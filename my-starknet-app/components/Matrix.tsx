@@ -39,7 +39,7 @@ const Matrix: React.FC = () => {
     startCell: { row: 0, col: 0 },
     selectedCells: [],
     showPopup: false,
-    mintPrice: 0,
+    mintPrice: 0.0001,
   });
 
   const { isSelecting, startCell, selectedCells, showPopup, mintPrice } = state;
@@ -89,12 +89,12 @@ const Matrix: React.FC = () => {
   };
 
   return (
-    <div style={{ width: '100%', height: '100vh', cursor: 'cell' }}>
+    <div style={{ width: 'auto', height: '100vh', cursor: 'cell', padding: 'inherit' }}>
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${totalCols}, 10px)`,
-          gap: '1px',
+          justifyContent: 'center',
         }}
         onMouseUp={handleMouseUp}
       >

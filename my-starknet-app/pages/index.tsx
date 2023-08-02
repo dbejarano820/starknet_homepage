@@ -2,8 +2,8 @@ import Head from 'next/head'
 import { useBlock } from '@starknet-react/core'
 import WalletBar from '../components/WalletBar'
 import Matrix from '../components/Matrix';
-import styles from "../styles/Home.module.css";
 import Switch from "@mui/material/Switch";
+import { Container, Box, Divider } from '@mui/material';
 
 const label = { inputProps: { "aria-label": "Switch demo" } };
 
@@ -21,11 +21,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div className={styles.container}>
-          <p>
-            Get started by editing&nbsp;
-            <code>pages/index.tsx</code>
-          </p>
+        <Container fixed>
+          <Box>
+            <h1>Starknet Homepage</h1>
+          </Box>
           <div>
             {isLoading
               ? 'Loading...'
@@ -33,10 +32,11 @@ export default function Home() {
               ? 'Error while fetching the latest block hash'
               : `Latest block hash: ${data?.block_hash}`}
           </div>
+          <Divider sx={{margin: '8px'}}/>
           <WalletBar />
           <Switch {...label} defaultChecked />
           <Matrix />
-        </div>
+        </Container>
       </main>
     </>
   )
