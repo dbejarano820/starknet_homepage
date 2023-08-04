@@ -1,12 +1,21 @@
 import { useAccount, useConnectors } from '@starknet-react/core'
 import { useMemo, useState } from 'react'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
+import { DialogTitle, DialogContentText, DialogContent, DialogActions, Dialog, Button, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles';
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  '&:hover': {
+    backgroundColor: theme.palette.primary.light,
+  },
+}));
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  marginLeft: 'auto',
+}));
+
 
 function WalletConnected({ address } : { address: string }) {
   const { disconnect } = useConnectors()
@@ -17,12 +26,12 @@ function WalletConnected({ address } : { address: string }) {
   }, [address])
 
   return (
-    <div>
-      <Button color="inherit" onClick={disconnect}>
+    <StyledBox>
+      <StyledButton color="inherit" onClick={disconnect}>
         {shortenedAddress}
-      </Button>
+      </StyledButton>
       <span>Connected to Mainnet</span>
-    </div>
+    </StyledBox>
   )
 }
 
@@ -40,10 +49,10 @@ function ConnectWallet() {
   }
 
   return (
-    <div>
-      <Button color="inherit" onClick={handleClickOpen}>
+    <StyledBox>
+      <StyledButton color="inherit" onClick={handleClickOpen}>
         Connect Wallet
-      </Button>
+      </StyledButton>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Choose a wallet:</DialogTitle>
         <DialogContent>
@@ -68,7 +77,7 @@ function ConnectWallet() {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </StyledBox>
   )
 }
 

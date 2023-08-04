@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Image from 'next/image';
 import { useBlock } from '@starknet-react/core'
 import WalletBar from '../components/WalletBar'
 import Matrix from '../components/Matrix';
@@ -26,21 +27,19 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Container fixed>
-          <Grid container direction="column" marginBottom={1}>
-            <Grid container direction="row" alignItems="center">
-              <span>ICON</span>
+        <Container sx={{width: '1000px'}} fixed>
+          <Grid container direction="column" marginBottom={3}>
+            <Grid container direction="row" alignItems="center" gap={1}>
+              <Image src="/Starknet-Icon.png" alt="Icon" width={50} height={50}  />
               <Typography variant='h2'>Starknet Homepage</Typography>
             </Grid>
             <Grid container alignItems="center" gap={1}>
-                <Typography  variant='subtitle1'>1,000,000 pixels</Typography>
-                <Divider orientation="vertical" sx={{borderColor: "black"}} flexItem />
-                <Typography  variant='subtitle1'>0.0001 ETH per pixel</Typography>
-                <Divider orientation="vertical" flexItem sx={{borderColor: "black"}} />
-                <Typography  variant='subtitle1'>Own a piece of Starknet History</Typography>
-              <Grid item>
-                <WalletBar />
-              </Grid>
+              <Typography  variant='subtitle1'>1,000,000 pixels</Typography>
+              <Divider orientation="vertical" sx={{borderColor: "black"}} flexItem />
+              <Typography  variant='subtitle1'>0.0001 ETH per pixel</Typography>
+              <Divider orientation="vertical" flexItem sx={{borderColor: "black"}} />
+              <Typography  variant='subtitle1'>Own a piece of Starknet History</Typography>
+              <WalletBar />
             </Grid>
           </Grid>
           <Matrix />
