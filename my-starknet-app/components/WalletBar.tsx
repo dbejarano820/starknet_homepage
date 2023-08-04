@@ -1,6 +1,7 @@
+import Image from 'next/image';
 import { useAccount, useConnectors } from '@starknet-react/core'
 import { useMemo, useState } from 'react'
-import { DialogTitle, DialogContentText, DialogContent, DialogActions, Dialog, Button, Box } from '@mui/material';
+import { DialogTitle, DialogContentText, DialogContent, DialogActions, Dialog, Button, Box, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles'
 import { styled } from '@mui/material/styles';
 
@@ -10,6 +11,13 @@ const StyledButton = styled(Button)(({ theme }) => ({
   '&:hover': {
     backgroundColor: theme.palette.primary.light,
   },
+}));
+
+const ConnectWalletButton = styled(Button)(({ theme }) => ({
+  border: "1px solid",
+  width: "inherit",
+  display: "flex",
+  justifyContent: "space-between"
 }));
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -54,21 +62,24 @@ function ConnectWallet() {
         Connect Wallet
       </StyledButton>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Choose a wallet:</DialogTitle>
+        <DialogTitle>Connect to a wallet</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {connectors.map((connector) => (
-              <Button
-                key={connector.id}
-                onClick={() => {
-                  connect(connector)
-                  handleClose()
-                }}
-                sx={{ margin: theme.spacing(1) }}
-              >
-                {connector.id}
-              </Button>
-            ))}
+            <Grid container direction="column" alignItems="flex-start" gap={1}>
+              {connectors.map((connector) => (
+                <ConnectWalletButton
+                  key={connector.id}
+                  onClick={() => {
+                    connect(connector)
+                    handleClose()
+                  }}
+                  sx={{ margin: theme.spacing(1) }}
+                >
+                  {connector.id}
+                  <Image src={`/${connector.id}-icon.png`} alt={connector.id} width={30} height={30} />
+                </ConnectWalletButton>
+              ))}
+            </Grid>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
