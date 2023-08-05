@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useAccount, useConnectors } from '@starknet-react/core'
+import { useAccount, useConnectors, useNetwork } from '@starknet-react/core'
 import { useMemo, useState } from 'react'
 import { DialogTitle, DialogContentText, DialogContent, DialogActions, Dialog, Button, Box, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles'
@@ -27,7 +27,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 function WalletConnected({ address } : { address: string }) {
   const { disconnect } = useConnectors()
-
+  const { chain } = useNetwork()
   const shortenedAddress = useMemo(() => {
     if (!address) return ''
     return `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -38,7 +38,7 @@ function WalletConnected({ address } : { address: string }) {
       <StyledButton color="inherit" onClick={disconnect}>
         {shortenedAddress}
       </StyledButton>
-      <span>Connected to Mainnet</span>
+      <span>&nbsp;Connected to {chain && chain.name}</span>
     </StyledBox>
   )
 }
