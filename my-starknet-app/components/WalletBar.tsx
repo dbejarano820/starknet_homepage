@@ -15,7 +15,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 const ConnectWalletButton = styled(Button)(({ theme }) => ({
   border: "1px solid",
-  width: "inherit",
+  width: "-webkit-fill-available",
   display: "flex",
   justifyContent: "space-between"
 }));
