@@ -89,7 +89,7 @@ const Matrix: React.FC = () => {
   };
 
   return (
-    <div style={{ width: 'auto', height: '100vh', cursor: 'cell', padding: 'inherit' }}>
+    <div style={{ width: 'auto', height: '100vh', cursor: 'cell', padding: 'inherit', display: 'inline' }}>
       <div
         style={{
           display: 'grid',

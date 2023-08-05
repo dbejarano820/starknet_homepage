@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { useBlock } from '@starknet-react/core'
 import WalletBar from '../components/WalletBar'
 import Matrix from '../components/Matrix';
+import Footer from '../components/Footer';
 import { Container, Grid, Divider, Typography } from '@mui/material';
 
 export default function Home() {
@@ -28,7 +29,7 @@ export default function Home() {
       </Head>
       <main>
         <Container sx={{width: '1000px'}} fixed>
-          <Grid container direction="column" marginBottom={3}>
+          <Grid container direction="column" marginBottom={1.5}>
             <Grid container direction="row" alignItems="center" gap={1}>
               <Image src="/Starknet-Icon.png" alt="Icon" width={50} height={50}  />
               <Typography variant='h2'>Starknet Homepage</Typography>
@@ -43,6 +44,7 @@ export default function Home() {
             </Grid>
           </Grid>
           <Matrix />
+          <Footer />
         </Container>
       </main>
     </>
