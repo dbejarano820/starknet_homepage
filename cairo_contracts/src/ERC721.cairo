@@ -110,7 +110,11 @@ trait IERC721<TContractState> {
         _img: Array<felt252>,
         _link: Array<felt252>,
     );
-           
+    fn get_attributes(self: @TContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252);
+    fn get_url_img(self: @TContractState, token_id: felt252) -> Array<felt252>;
+    fn get_url_link(self: @TContractState, token_id: felt252) -> Array<felt252>;
+    fn set_url_img(ref self: TContractState, _token_id: felt252, _img: Array<felt252>);
+    fn set_url_link(ref self: TContractState, _token_id: felt252, _link: Array<felt252>);
 }
 
 #[starknet::contract]
@@ -237,6 +241,8 @@ mod ERC721 {
             _height: felt252,
             _img: Array<felt252>,
             _link: Array<felt252>) {
+                // TODO: Validar que no este minteada la posicion
+                // TODO: Validar que el que mintea envie los 0.001ETH
                 // Store NFT Attributes
                 self.xpos.write(_token_id, _xpos);
                 self.ypos.write(_token_id, _ypos);
@@ -247,6 +253,28 @@ mod ERC721 {
                 // Mint NFT
                 self._mint (_to, _token_id.into());
                 self.nft_counter.write(self.nft_counter.read() + 1);
+        }
+
+        fn get_attributes(self: @ContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252) {
+            return(self.xpos.read(token_id),self.ypos.read(token_id),self.width.read(token_id),self.height.read(token_id));
+        }
+
+        fn get_url_img(self: @ContractState, token_id: felt252) -> Array<felt252>{
+            return(self.img.read(token_id));
+        }
+
+        fn get_url_link(self: @ContractState, token_id: felt252) -> Array<felt252>{
+            return(self.link.read(token_id));
+        }
+
+        fn set_url_img(ref self: ContractState, _token_id: felt252, _img: Array<felt252>) {
+            // TODO: Onlyowner
+            self.img.write(_token_id, _img);
+        }
+
+        fn set_url_link(ref self: ContractState, _token_id: felt252, _link: Array<felt252>) {
+            // TODO: Onlyowner
+            self.img.write(_token_id, _link);
         }
     }
 
@@ -366,5 +394,61 @@ mod ERC721 {
             first_token_id: u256, 
             batch_size: u256
         ) {}
+    }
+}
+
+#[cfg(test)]
+mod test_nft {
+    use starknet::testing::set_caller_address;
+    use starknet::syscalls::deploy_syscall;
+    use starknet::{contract_address_const, ContractAddress, TryInto, Into, OptionTrait};
+    use array::{ArrayTrait, SpanTrait};
+    use serde::Serde;
+    
+    use result::ResultTrait;
+    use debug::PrintTrait;
+
+    use super:: {
+            IERC721DispatcherTrait, 
+            IERC721Dispatcher, 
+            IERC721LibraryDispatcher 
+            };
+    use super::{ERC721};
+
+
+    fn setup() -> ContractAddress {
+        let account: ContractAddress = contract_address_const::<1>();
+        set_caller_address(account);
+
+        let calldata = array!['StarknetHomePage','HPG'];
+
+        let (address0, _) = deploy_syscall(ERC721::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
+
+        address0
+    }
+
+    #[test]
+    #[available_gas(10000000)]
+    fn test_nft_check_01(){
+        let initial_gas = testing::get_available_gas();
+        gas::withdraw_gas().unwrap();
+
+        let account = setup();
+        let contract_address: ContractAddress = contract_address_const::<0x42>();
+
+        let nft = IERC721Dispatcher{contract_address: account};
+        let arr_img = array!['http://url1.com'];
+        let arr_link = array!['http://url2.com'];
+
+        nft.mint2(contract_address, 0, 1, 1, 2, 2, arr_img, arr_link);
+
+        let (xpos, ypos, width, height): (felt252, felt252, felt252, felt252) = nft.get_attributes(0);
+
+        assert (xpos == 1, 'Wrong xpos');
+        assert (ypos == 1, 'Wrong ypos');
+        assert (width == 2, 'Wrong width');
+        assert (height == 2, 'Wrong height');
+
+        (initial_gas - testing::get_available_gas()).print();
     }
 }
