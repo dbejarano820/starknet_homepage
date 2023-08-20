@@ -110,11 +110,11 @@ trait IERC721<TContractState> {
         _img: Array<felt252>,
         _link: Array<felt252>,
     );
-    fn get_attributes(self: @TContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252);
-    fn get_url_img(self: @TContractState, token_id: felt252) -> Array<felt252>;
-    fn get_url_link(self: @TContractState, token_id: felt252) -> Array<felt252>;
-    fn set_url_img(ref self: TContractState, _token_id: felt252, _img: Array<felt252>);
-    fn set_url_link(ref self: TContractState, _token_id: felt252, _link: Array<felt252>);
+    fn get_token_attributes(self: @TContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252);
+    fn get_token_img(self: @TContractState, token_id: felt252) -> Array<felt252>;
+    fn get_token_link(self: @TContractState, token_id: felt252) -> Array<felt252>;
+    fn set_token_img(ref self: TContractState, _token_id: felt252, _img: Array<felt252>);
+    fn set_token_link(ref self: TContractState, _token_id: felt252, _link: Array<felt252>);
 }
 
 #[starknet::contract]
@@ -255,24 +255,24 @@ mod ERC721 {
                 self.nft_counter.write(self.nft_counter.read() + 1);
         }
 
-        fn get_attributes(self: @ContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252) {
+        fn get_token_attributes(self: @ContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252) {
             return(self.xpos.read(token_id),self.ypos.read(token_id),self.width.read(token_id),self.height.read(token_id));
         }
 
-        fn get_url_img(self: @ContractState, token_id: felt252) -> Array<felt252>{
+        fn get_token_img(self: @ContractState, token_id: felt252) -> Array<felt252>{
             return(self.img.read(token_id));
         }
 
-        fn get_url_link(self: @ContractState, token_id: felt252) -> Array<felt252>{
+        fn get_token_link(self: @ContractState, token_id: felt252) -> Array<felt252>{
             return(self.link.read(token_id));
         }
 
-        fn set_url_img(ref self: ContractState, _token_id: felt252, _img: Array<felt252>) {
+        fn set_token_img(ref self: ContractState, _token_id: felt252, _img: Array<felt252>) {
             // TODO: Onlyowner
             self.img.write(_token_id, _img);
         }
 
-        fn set_url_link(ref self: ContractState, _token_id: felt252, _link: Array<felt252>) {
+        fn set_token_link(ref self: ContractState, _token_id: felt252, _link: Array<felt252>) {
             // TODO: Onlyowner
             self.img.write(_token_id, _link);
         }
@@ -442,7 +442,7 @@ mod test_nft {
 
         nft.mint2(contract_address, 0, 1, 1, 2, 2, arr_img, arr_link);
 
-        let (xpos, ypos, width, height): (felt252, felt252, felt252, felt252) = nft.get_attributes(0);
+        let (xpos, ypos, width, height): (felt252, felt252, felt252, felt252) = nft.get_token_attributes(0);
 
         assert (xpos == 1, 'Wrong xpos');
         assert (ypos == 1, 'Wrong ypos');
