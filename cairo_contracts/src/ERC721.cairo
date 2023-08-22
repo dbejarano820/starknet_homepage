@@ -1,5 +1,83 @@
+use core::serde::Serde;
 //Template from https://github.com/reddio-com/cairo/tree/main
 use starknet::ContractAddress;
+use array::{ArrayTrait, SpanTrait};
+use starknet::{SyscallResult, TryInto, Into, OptionTrait};
+use starknet::storage_access::{Store, StorePacking, StorageBaseAddress};
+use result::ResultTrait;
+
+impl StoreFelt252Array of Store<Array<felt252>>{ 
+    fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<felt252>> {
+        StoreFelt252Array::read_at_offset(address_domain, base, 0)
+    }
+
+    fn write(
+        address_domain: u32, base: StorageBaseAddress, value: Array<felt252>
+    ) -> SyscallResult<()> {
+        StoreFelt252Array::write_at_offset(address_domain, base, 0, value)
+    }
+
+    fn read_at_offset(
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8
+    ) -> SyscallResult<Array<felt252>> {
+        let mut arr: Array<felt252> = ArrayTrait::new();
+
+        // Read the stored array's length. If the length is superior to 255, the read will fail.
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('Storage Span too large');
+        offset += 1;
+
+        // Sequentially read all stored elements and append them to the array.
+        let exit = len + offset;
+        loop {
+            if offset >= exit {
+                break;
+            }
+
+            let value = Store::<felt252>::read_at_offset(
+                address_domain, base, offset
+            )
+                .unwrap();
+            arr.append(value);
+            offset += Store::<felt252>::size();
+        };
+
+        Result::Ok(arr)
+    }
+
+    fn write_at_offset(
+        address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<felt252>
+    ) -> SyscallResult<()> {
+
+        // // Store the length of the array in the first storage slot. 255 of elements is max
+        let len: u8 = value.len().try_into().expect('Storage - Span too large');
+
+        Store::<u8>::write_at_offset(address_domain, base, offset, len);
+
+        offset += 1;
+
+        // Store the array elements sequentially
+        loop {
+            match value.pop_front() {
+                Option::Some(element) => {
+                    Store::<felt252>::write_at_offset(
+                        address_domain, base, offset, element
+                    );
+
+                    offset += Store::<felt252>::size();
+                },
+                Option::None => {
+                    break Result::Ok(());
+                }
+            };
+        }
+    }
+
+    fn size() -> u8 {
+
+        1_u8 + Store::<felt252>::size()
+
+    }
+}
 
 #[starknet::interface]
 trait IERC721<TContractState> {
@@ -21,6 +99,22 @@ trait IERC721<TContractState> {
     fn transfer_from(
         ref self: TContractState, from: ContractAddress, to: ContractAddress, token_id: u256
     );
+    fn mint2(
+        ref self: TContractState, 
+        _to: ContractAddress, 
+        _token_id: felt252, 
+        _xpos: felt252, 
+        _ypos: felt252, 
+        _width: felt252, 
+        _height: felt252,
+        _img: Array<felt252>,
+        _link: Array<felt252>,
+    );
+    fn get_token_attributes(self: @TContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252);
+    fn get_token_img(self: @TContractState, token_id: felt252) -> Array<felt252>;
+    fn get_token_link(self: @TContractState, token_id: felt252) -> Array<felt252>;
+    fn set_token_img(ref self: TContractState, _token_id: felt252, _img: Array<felt252>);
+    fn set_token_link(ref self: TContractState, _token_id: felt252, _link: Array<felt252>);
 }
 
 #[starknet::contract]
@@ -32,6 +126,7 @@ mod ERC721 {
     use zeroable::Zeroable;
     use traits::TryInto;
     use option::OptionTrait;
+    use super::StoreFelt252Array;
 
     #[storage]
     struct Storage {
@@ -42,6 +137,13 @@ mod ERC721 {
         token_approvals: LegacyMap::<u256, ContractAddress>,
         /// (owner, operator)
         operator_approvals: LegacyMap::<(ContractAddress, ContractAddress), bool>,
+        xpos: LegacyMap::<felt252, felt252>,
+        ypos: LegacyMap::<felt252, felt252>,
+        width: LegacyMap::<felt252, felt252>,
+        height: LegacyMap::<felt252, felt252>,
+        img: LegacyMap::<felt252, Array<felt252>>,
+        link: LegacyMap::<felt252, Array<felt252>>,
+        nft_counter: felt252,
     }
 
     #[event]
@@ -128,6 +230,51 @@ mod ERC721 {
             // || is not supported currently so we use | here
             assert((get_caller_address() == owner) | self._is_approved_for_all(owner, get_caller_address()), 'Not token owner');
             self._approve(to, token_id);
+        }
+
+        fn mint2(ref self: ContractState, 
+            _to: ContractAddress, 
+            _token_id: felt252, 
+            _xpos: felt252, 
+            _ypos: felt252, 
+            _width: felt252, 
+            _height: felt252,
+            _img: Array<felt252>,
+            _link: Array<felt252>) {
+                // TODO: Validar que no este minteada la posicion
+                // TODO: Validar que el que mintea envie los 0.001ETH
+                // Store NFT Attributes
+                self.xpos.write(_token_id, _xpos);
+                self.ypos.write(_token_id, _ypos);
+                self.width.write(_token_id, _width);
+                self.height.write(_token_id, _height);
+                self.img.write(_token_id, _img);
+                self.link.write(_token_id, _link);
+                // Mint NFT
+                self._mint (_to, _token_id.into());
+                self.nft_counter.write(self.nft_counter.read() + 1);
+        }
+
+        fn get_token_attributes(self: @ContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252) {
+            return(self.xpos.read(token_id),self.ypos.read(token_id),self.width.read(token_id),self.height.read(token_id));
+        }
+
+        fn get_token_img(self: @ContractState, token_id: felt252) -> Array<felt252>{
+            return(self.img.read(token_id));
+        }
+
+        fn get_token_link(self: @ContractState, token_id: felt252) -> Array<felt252>{
+            return(self.link.read(token_id));
+        }
+
+        fn set_token_img(ref self: ContractState, _token_id: felt252, _img: Array<felt252>) {
+            // TODO: Onlyowner
+            self.img.write(_token_id, _img);
+        }
+
+        fn set_token_link(ref self: ContractState, _token_id: felt252, _link: Array<felt252>) {
+            // TODO: Onlyowner
+            self.img.write(_token_id, _link);
         }
     }
 
@@ -247,5 +394,61 @@ mod ERC721 {
             first_token_id: u256, 
             batch_size: u256
         ) {}
+    }
+}
+
+#[cfg(test)]
+mod test_nft {
+    use starknet::testing::set_caller_address;
+    use starknet::syscalls::deploy_syscall;
+    use starknet::{contract_address_const, ContractAddress, TryInto, Into, OptionTrait};
+    use array::{ArrayTrait, SpanTrait};
+    use serde::Serde;
+    
+    use result::ResultTrait;
+    use debug::PrintTrait;
+
+    use super:: {
+            IERC721DispatcherTrait, 
+            IERC721Dispatcher, 
+            IERC721LibraryDispatcher 
+            };
+    use super::{ERC721};
+
+
+    fn setup() -> ContractAddress {
+        let account: ContractAddress = contract_address_const::<1>();
+        set_caller_address(account);
+
+        let calldata = array!['StarknetHomePage','HPG'];
+
+        let (address0, _) = deploy_syscall(ERC721::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
+
+        address0
+    }
+
+    #[test]
+    #[available_gas(10000000)]
+    fn test_nft_check_01(){
+        let initial_gas = testing::get_available_gas();
+        gas::withdraw_gas().unwrap();
+
+        let account = setup();
+        let contract_address: ContractAddress = contract_address_const::<0x42>();
+
+        let nft = IERC721Dispatcher{contract_address: account};
+        let arr_img = array!['http://url1.com'];
+        let arr_link = array!['http://url2.com'];
+
+        nft.mint2(contract_address, 0, 1, 1, 2, 2, arr_img, arr_link);
+
+        let (xpos, ypos, width, height): (felt252, felt252, felt252, felt252) = nft.get_token_attributes(0);
+
+        assert (xpos == 1, 'Wrong xpos');
+        assert (ypos == 1, 'Wrong ypos');
+        assert (width == 2, 'Wrong width');
+        assert (height == 2, 'Wrong height');
+
+        (initial_gas - testing::get_available_gas()).print();
     }
 }
