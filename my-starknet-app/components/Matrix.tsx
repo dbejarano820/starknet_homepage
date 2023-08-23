@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-
+import React, { useState , useMemo} from 'react';
+import { useAccount, useContractWrite } from '@starknet-react/core'
 interface CellProps {
   row: number;
   col: number;
@@ -41,6 +41,19 @@ const Matrix: React.FC = () => {
     showPopup: false,
     mintPrice: 0.0001,
   });
+  const { address } = useAccount()
+  const calls = useMemo(() => {
+    const tx = {
+      contractAddress: '0x05eefcf9148636f2f0f3b7969e7d0107809ee05201ecbbd69335c40bd031de75',
+      entrypoint: 'mint2',
+      //0, 1, 1, 2, 2, arr_img, arr_link
+      //arr_img, arr_link won't be passed in, will be refactored
+      calldata: [address!, 1, 1, 2, 2, ['http://sitio.com/a.jpg'],  ['http://sitio.com/']]
+    }
+    return tx;
+  }, [address])
+
+  const { write } = useContractWrite({ calls });
 
   const { isSelecting, startCell, selectedCells, showPopup, mintPrice } = state;
 
@@ -79,8 +92,8 @@ const Matrix: React.FC = () => {
   };
 
   const handleMintClick = (): void => {
-    // Implement your minting logic here
     console.log('Mint NFT for selected cells');
+    write();
     setState((prevState) => ({
       ...prevState,
       showPopup: false,

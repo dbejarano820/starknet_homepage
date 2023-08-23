@@ -241,8 +241,8 @@ mod ERC721 {
             _height: felt252,
             _img: Array<felt252>,
             _link: Array<felt252>) {
-                // TODO: Validar que no este minteada la posicion
-                // TODO: Validar que el que mintea envie los 0.001ETH
+                // TODO: Validar que el que mintea envie el Ether por pagar = width*height*CELL_PRICE
+                // TODO: Reenviar ETH para withdraw
                 // Store NFT Attributes
                 self.xpos.write(_token_id, _xpos);
                 self.ypos.write(_token_id, _ypos);
@@ -385,7 +385,9 @@ mod ERC721 {
             to: ContractAddress, 
             first_token_id: u256, 
             batch_size: u256
-        ) {}
+        ) {
+            // TODO: Validar que no este minteada la posicion
+        }
 
         fn _afterTokenTransfer(
             ref self: ContractState, 
