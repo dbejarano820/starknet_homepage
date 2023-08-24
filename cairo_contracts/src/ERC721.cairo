@@ -6,6 +6,14 @@ use starknet::{SyscallResult, TryInto, Into, OptionTrait};
 use starknet::storage_access::{Store, StorePacking, StorageBaseAddress};
 use result::ResultTrait;
 
+#[starknet::interface]
+trait IERC20<TContractState> {
+    fn transfer_from(
+        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+    ) -> bool;
+}
+
+
 impl StoreFelt252Array of Store<Array<felt252>>{ 
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<felt252>> {
         StoreFelt252Array::read_at_offset(address_domain, base, 0)
@@ -109,16 +117,17 @@ trait IERC721<TContractState> {
         _img: Array<felt252>,
         _link: Array<felt252>,
     );
-    fn get_token_attributes(self: @TContractState, token_id: felt252) -> (u8, u8, u8, u8);
-    fn get_token_img(self: @TContractState, token_id: felt252) -> Array<felt252>;
-    fn get_token_link(self: @TContractState, token_id: felt252) -> Array<felt252>;
-    fn set_token_img(ref self: TContractState, _token_id: felt252, _img: Array<felt252>);
-    fn set_token_link(ref self: TContractState, _token_id: felt252, _link: Array<felt252>);
+    fn get_token_attributes(self: @TContractState, token_id: u256) -> (u8, u8, u8, u8);
+    fn get_token_img(self: @TContractState, token_id: u256) -> Array<felt252>;
+    fn get_token_link(self: @TContractState, token_id: u256) -> Array<felt252>;
+    fn set_token_img(ref self: TContractState, _token_id: u256, _img: Array<felt252>);
+    fn set_token_link(ref self: TContractState, _token_id: u256, _link: Array<felt252>);
 }
 
 #[starknet::contract]
 mod ERC721 {
     use starknet::get_caller_address;
+    use starknet::get_contract_address;
     use starknet::contract_address_const;
     use starknet::ContractAddress;
     use traits::Into;
@@ -126,6 +135,11 @@ mod ERC721 {
     use traits::TryInto;
     use option::OptionTrait;
     use super::StoreFelt252Array;
+    use super::{
+        IERC20Dispatcher, IERC20DispatcherTrait
+    };
+
+    const ETH_L2_ADDRESS: felt252 = 0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7;
 
     #[storage]
     struct Storage {
@@ -136,13 +150,13 @@ mod ERC721 {
         token_approvals: LegacyMap::<u256, ContractAddress>,
         /// (owner, operator)
         operator_approvals: LegacyMap::<(ContractAddress, ContractAddress), bool>,
-        xpos: LegacyMap::<felt252, u8>,
-        ypos: LegacyMap::<felt252, u8>,
-        width: LegacyMap::<felt252, u8>,
-        height: LegacyMap::<felt252, u8>,
-        img: LegacyMap::<felt252, Array<felt252>>,
-        link: LegacyMap::<felt252, Array<felt252>>,
-        nft_counter: felt252,
+        xpos: LegacyMap::<u256, u8>,
+        ypos: LegacyMap::<u256, u8>,
+        width: LegacyMap::<u256, u8>,
+        height: LegacyMap::<u256, u8>,
+        img: LegacyMap::<u256, Array<felt252>>,
+        link: LegacyMap::<u256, Array<felt252>>,
+        nft_counter: u256,
         matrix: LegacyMap::<(u8, u8), bool>,
     }
 
@@ -284,24 +298,24 @@ mod ERC721 {
                 self.nft_counter.write(self.nft_counter.read() + 1);
             }
 
-        fn get_token_attributes(self: @ContractState, token_id: felt252) -> (u8, u8, u8, u8) {
+        fn get_token_attributes(self: @ContractState, token_id: u256) -> (u8, u8, u8, u8) {
             return(self.xpos.read(token_id),self.ypos.read(token_id),self.width.read(token_id),self.height.read(token_id));
         }
 
-        fn get_token_img(self: @ContractState, token_id: felt252) -> Array<felt252>{
+        fn get_token_img(self: @ContractState, token_id: u256) -> Array<felt252>{
             return(self.img.read(token_id));
         }
 
-        fn get_token_link(self: @ContractState, token_id: felt252) -> Array<felt252>{
+        fn get_token_link(self: @ContractState, token_id: u256) -> Array<felt252>{
             return(self.link.read(token_id));
         }
 
-        fn set_token_img(ref self: ContractState, _token_id: felt252, _img: Array<felt252>) {
+        fn set_token_img(ref self: ContractState, _token_id: u256, _img: Array<felt252>) {
             // TODO: Onlyowner
             self.img.write(_token_id, _img);
         }
 
-        fn set_token_link(ref self: ContractState, _token_id: felt252, _link: Array<felt252>) {
+        fn set_token_link(ref self: ContractState, _token_id: u256, _link: Array<felt252>) {
             // TODO: Onlyowner
             self.img.write(_token_id, _link);
         }
@@ -414,15 +428,15 @@ mod ERC721 {
             to: ContractAddress, 
             first_token_id: u256, 
             batch_size: u256
-        ) {
-            // x,x,x,x =  get_token_attributes(first_token_id) 
-            // TODO: Validar que no este minteada la posicion
+        ) { 
+            let _height: u256 = self.height.read(first_token_id).into();
+            let _width: u256 = self.width.read(first_token_id).into();
+            let pixel_price: u256 = 100000000000000;
 
-            
-            // let c = get_contract_address()
-            // 
-            //TransferFrom (to, c, MINT_PRICE)
+            let mint_price: u256 = _height * _width * pixel_price;
+            let eth_l2_address = contract_address_const::<0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7>();
 
+            IERC20Dispatcher{ contract_address: eth_l2_address }.transfer_from(to, get_contract_address(), mint_price);
         }
 
         fn _afterTokenTransfer(
