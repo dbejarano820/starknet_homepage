@@ -102,7 +102,6 @@ trait IERC721<TContractState> {
     fn mint2(
         ref self: TContractState, 
         _to: ContractAddress, 
-        _token_id: felt252, 
         _xpos: felt252, 
         _ypos: felt252, 
         _width: felt252, 
@@ -176,6 +175,7 @@ mod ERC721 {
     fn constructor(ref self: ContractState, _name: felt252, _symbol: felt252) {
         self.name.write(_name);
         self.symbol.write(_symbol);
+        self.nft_counter.write(0);
     }
 
     #[external(v0)]
@@ -234,7 +234,6 @@ mod ERC721 {
 
         fn mint2(ref self: ContractState, 
             _to: ContractAddress, 
-            _token_id: felt252, 
             _xpos: felt252, 
             _ypos: felt252, 
             _width: felt252, 
@@ -244,6 +243,7 @@ mod ERC721 {
                 // TODO: Validar que el que mintea envie el Ether por pagar = width*height*CELL_PRICE
                 // TODO: Reenviar ETH para withdraw
                 // Store NFT Attributes
+                let _token_id = self.nft_counter.read();
                 self.xpos.write(_token_id, _xpos);
                 self.ypos.write(_token_id, _ypos);
                 self.width.write(_token_id, _width);
@@ -442,7 +442,7 @@ mod test_nft {
         let arr_img = array!['http://url1.com'];
         let arr_link = array!['http://url2.com'];
 
-        nft.mint2(contract_address, 0, 1, 1, 2, 2, arr_img, arr_link);
+        nft.mint2(contract_address, 1, 1, 2, 2, arr_img, arr_link);
 
         let (xpos, ypos, width, height): (felt252, felt252, felt252, felt252) = nft.get_token_attributes(0);
 
