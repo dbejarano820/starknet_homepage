@@ -143,6 +143,7 @@ mod ERC721 {
         img: LegacyMap::<felt252, Array<felt252>>,
         link: LegacyMap::<felt252, Array<felt252>>,
         nft_counter: felt252,
+        matrix: LegacyMap::<(felt252, felt252), bool>,
     }
 
     #[event]
@@ -240,6 +241,30 @@ mod ERC721 {
             _height: felt252,
             _img: Array<felt252>,
             _link: Array<felt252>) {
+                // Validar que las posiciones no se encuentran minteadas
+                let mut x: felt252 = _xpos;
+                let mut y: felt252 = _ypos;
+                loop {
+                    loop {
+                        // Valida posicion
+                        let minted :bool = self.matrix.read((x,y));
+                        assert(!minted,'Some position already minted.');
+                        // Si no esta minteada entonces marcamos la posicion como minteada
+                        self.matrix.write((x,y),true);
+                        // Avanza una casilla a la derecha
+                        x += 1;
+                        // Si llegamos al final salimos del loop
+                        if x == (_xpos + _width) {
+                            break;
+                        };
+                    };
+                    // Avanza una casilla hacia abajo
+                    y += 1;
+                    // Si llegamos al final entonces salimos del loop
+                    if y == (_ypos + _height) {
+                        break;
+                    };
+                };
                 // TODO: Validar que el que mintea envie el Ether por pagar = width*height*CELL_PRICE
                 // TODO: Reenviar ETH para withdraw
                 // Store NFT Attributes
