@@ -99,7 +99,7 @@ trait IERC721<TContractState> {
     fn transfer_from(
         ref self: TContractState, from: ContractAddress, to: ContractAddress, token_id: u256
     );
-    fn mint2(
+    fn mint(
         ref self: TContractState, 
         _to: ContractAddress, 
         _xpos: felt252, 
@@ -232,7 +232,7 @@ mod ERC721 {
             self._approve(to, token_id);
         }
 
-        fn mint2(ref self: ContractState, 
+        fn mint(ref self: ContractState, 
             _to: ContractAddress, 
             _xpos: felt252, 
             _ypos: felt252, 
@@ -253,7 +253,7 @@ mod ERC721 {
                 // Mint NFT
                 self._mint (_to, _token_id.into());
                 self.nft_counter.write(self.nft_counter.read() + 1);
-        }
+            }
 
         fn get_token_attributes(self: @ContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252) {
             return(self.xpos.read(token_id),self.ypos.read(token_id),self.width.read(token_id),self.height.read(token_id));
@@ -386,7 +386,14 @@ mod ERC721 {
             first_token_id: u256, 
             batch_size: u256
         ) {
+            // x,x,x,x =  get_token_attributes(first_token_id) 
             // TODO: Validar que no este minteada la posicion
+
+            
+            // let c = get_contract_address()
+            // 
+            //TransferFrom (to, c, MINT_PRICE)
+
         }
 
         fn _afterTokenTransfer(
