@@ -102,14 +102,14 @@ trait IERC721<TContractState> {
     fn mint(
         ref self: TContractState, 
         _to: ContractAddress, 
-        _xpos: felt252, 
-        _ypos: felt252, 
-        _width: felt252, 
-        _height: felt252,
+        _xpos: u8, 
+        _ypos: u8, 
+        _width: u8, 
+        _height: u8,
         _img: Array<felt252>,
         _link: Array<felt252>,
     );
-    fn get_token_attributes(self: @TContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252);
+    fn get_token_attributes(self: @TContractState, token_id: felt252) -> (u8, u8, u8, u8);
     fn get_token_img(self: @TContractState, token_id: felt252) -> Array<felt252>;
     fn get_token_link(self: @TContractState, token_id: felt252) -> Array<felt252>;
     fn set_token_img(ref self: TContractState, _token_id: felt252, _img: Array<felt252>);
@@ -136,13 +136,14 @@ mod ERC721 {
         token_approvals: LegacyMap::<u256, ContractAddress>,
         /// (owner, operator)
         operator_approvals: LegacyMap::<(ContractAddress, ContractAddress), bool>,
-        xpos: LegacyMap::<felt252, felt252>,
-        ypos: LegacyMap::<felt252, felt252>,
-        width: LegacyMap::<felt252, felt252>,
-        height: LegacyMap::<felt252, felt252>,
+        xpos: LegacyMap::<felt252, u8>,
+        ypos: LegacyMap::<felt252, u8>,
+        width: LegacyMap::<felt252, u8>,
+        height: LegacyMap::<felt252, u8>,
         img: LegacyMap::<felt252, Array<felt252>>,
         link: LegacyMap::<felt252, Array<felt252>>,
         nft_counter: felt252,
+        matrix: LegacyMap::<(u8, u8), bool>,
     }
 
     #[event]
@@ -234,12 +235,40 @@ mod ERC721 {
 
         fn mint(ref self: ContractState, 
             _to: ContractAddress, 
-            _xpos: felt252, 
-            _ypos: felt252, 
-            _width: felt252, 
-            _height: felt252,
+            _xpos: u8, 
+            _ypos: u8, 
+            _width: u8, 
+            _height: u8,
             _img: Array<felt252>,
             _link: Array<felt252>) {
+                // Validar que las posiciones no se encuentran minteadas
+                let mut x: u8 = _xpos;
+                let mut y: u8 = _ypos;
+                // Validar que las posiciones no se salen de la matrix
+                assert(_xpos + _width < 100_u8, 'Minting an invalid position');
+                assert(_ypos + _height < 100_u8, 'Minting an invalid position');
+                // Validar que las posiciones no se encuentran minteadas
+                loop {
+                    loop {
+                        // Valida posicion
+                        let minted :bool = self.matrix.read((x,y));
+                        assert(!minted,'Some position already minted.');
+                        // Si no esta minteada entonces marcamos la posicion como minteada
+                        self.matrix.write((x,y),true);
+                        // Avanza una casilla a la derecha
+                        x += 1;
+                        // Si llegamos al final salimos del loop
+                        if x == (_xpos + _width) {
+                            break;
+                        };
+                    };
+                    // Avanza una casilla hacia abajo
+                    y += 1;
+                    // Si llegamos al final entonces salimos del loop
+                    if y == (_ypos + _height) {
+                        break;
+                    };
+                };
                 // TODO: Validar que el que mintea envie el Ether por pagar = width*height*CELL_PRICE
                 // TODO: Reenviar ETH para withdraw
                 // Store NFT Attributes
@@ -255,7 +284,7 @@ mod ERC721 {
                 self.nft_counter.write(self.nft_counter.read() + 1);
             }
 
-        fn get_token_attributes(self: @ContractState, token_id: felt252) -> (felt252, felt252, felt252, felt252) {
+        fn get_token_attributes(self: @ContractState, token_id: felt252) -> (u8, u8, u8, u8) {
             return(self.xpos.read(token_id),self.ypos.read(token_id),self.width.read(token_id),self.height.read(token_id));
         }
 
@@ -451,12 +480,12 @@ mod test_nft {
 
         nft.mint2(contract_address, 1, 1, 2, 2, arr_img, arr_link);
 
-        let (xpos, ypos, width, height): (felt252, felt252, felt252, felt252) = nft.get_token_attributes(0);
+        let (xpos, ypos, width, height): (u8, u8, u8, u8) = nft.get_token_attributes(0);
 
-        assert (xpos == 1, 'Wrong xpos');
-        assert (ypos == 1, 'Wrong ypos');
-        assert (width == 2, 'Wrong width');
-        assert (height == 2, 'Wrong height');
+        assert (xpos == 1_u8, 'Wrong xpos');
+        assert (ypos == 1_u8, 'Wrong ypos');
+        assert (width == 2_u8, 'Wrong width');
+        assert (height == 2_u8, 'Wrong height');
 
         (initial_gas - testing::get_available_gas()).print();
     }
