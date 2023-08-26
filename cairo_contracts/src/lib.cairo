@@ -80,13 +80,15 @@ impl StoreFelt252Array of Store<Array<felt252>> {
 
 #[starknet::contract]
 mod StarknetHomepage {
-    use core::traits::Into;
-    use starknet::ContractAddress;
-    use starknet::get_contract_address;
-    use starknet::contract_address_const;
+    use starknet::{ContractAddress, get_contract_address, contract_address_const};
     use openzeppelin::token::erc721::ERC721;
+    use zeroable::Zeroable;
+    use traits::TryInto;
+    use option::OptionTrait;
     use array::ArrayTrait;
+    use core::traits::Into;
     use super::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use super::StoreFelt252Array;
 
     #[storage]
     struct Storage {
@@ -113,7 +115,6 @@ mod StarknetHomepage {
     #[external(v0)]
     fn mint(
         ref self: ContractState,
-        _to: ContractAddress,
         _xpos: u8,
         _ypos: u8,
         _width: u8,
@@ -129,6 +130,7 @@ mod StarknetHomepage {
         let mint_price: u256 = height * width * pixel_price;
         let eth_l2_address =
             contract_address_const::<0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7>();
+        let _to: ContractAddress = get_contract_address();
 
         IERC20Dispatcher { contract_address: eth_l2_address }
             .transferFrom(_to, get_contract_address(), mint_price);
