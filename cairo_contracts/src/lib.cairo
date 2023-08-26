@@ -12,7 +12,7 @@ trait IERC20<TContractState> {
     ) -> bool;
 }
 
-impl StoreFelt252Array of Store<Array<felt252>>{ 
+impl StoreFelt252Array of Store<Array<felt252>> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<felt252>> {
         StoreFelt252Array::read_at_offset(address_domain, base, 0)
     }
@@ -29,7 +29,8 @@ impl StoreFelt252Array of Store<Array<felt252>>{
         let mut arr: Array<felt252> = ArrayTrait::new();
 
         // Read the stored array's length. If the length is superior to 255, the read will fail.
-        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset).expect('Storage Span too large');
+        let len: u8 = Store::<u8>::read_at_offset(address_domain, base, offset)
+            .expect('Storage Span too large');
         offset += 1;
 
         // Sequentially read all stored elements and append them to the array.
@@ -39,10 +40,7 @@ impl StoreFelt252Array of Store<Array<felt252>>{
                 break;
             }
 
-            let value = Store::<felt252>::read_at_offset(
-                address_domain, base, offset
-            )
-                .unwrap();
+            let value = Store::<felt252>::read_at_offset(address_domain, base, offset).unwrap();
             arr.append(value);
             offset += Store::<felt252>::size();
         };
@@ -53,7 +51,6 @@ impl StoreFelt252Array of Store<Array<felt252>>{
     fn write_at_offset(
         address_domain: u32, base: StorageBaseAddress, mut offset: u8, mut value: Array<felt252>
     ) -> SyscallResult<()> {
-
         // // Store the length of the array in the first storage slot. 255 of elements is max
         let len: u8 = value.len().try_into().expect('Storage - Span too large');
 
@@ -65,9 +62,7 @@ impl StoreFelt252Array of Store<Array<felt252>>{
         loop {
             match value.pop_front() {
                 Option::Some(element) => {
-                    Store::<felt252>::write_at_offset(
-                        address_domain, base, offset, element
-                    );
+                    Store::<felt252>::write_at_offset(address_domain, base, offset, element);
 
                     offset += Store::<felt252>::size();
                 },
@@ -79,9 +74,7 @@ impl StoreFelt252Array of Store<Array<felt252>>{
     }
 
     fn size() -> u8 {
-
         1_u8 + Store::<felt252>::size()
-
     }
 }
 
@@ -93,9 +86,7 @@ mod StarknetHomepage {
     use starknet::contract_address_const;
     use openzeppelin::token::erc721::ERC721;
     use array::ArrayTrait;
-    use super::{
-        IERC20Dispatcher, IERC20DispatcherTrait
-    };
+    use super::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     #[storage]
     struct Storage {
@@ -110,9 +101,7 @@ mod StarknetHomepage {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-    ) {
+    fn constructor(ref self: ContractState,) {
         let name = 'StarknetHomepage';
         let symbol = 'SHP';
 
@@ -122,24 +111,27 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn mint(ref self: ContractState, 
+    fn mint(
+        ref self: ContractState,
         _to: ContractAddress,
-        _xpos: u8, 
-        _ypos: u8, 
-        _width: u8, 
+        _xpos: u8,
+        _ypos: u8,
+        _width: u8,
         _height: u8,
         _img: Array<felt252>,
-        _link: Array<felt252>,) {
-
+        _link: Array<felt252>,
+    ) {
         validateMatrix(ref self, _xpos, _ypos, _width, _height);
 
         let pixel_price: u256 = 100000000000000_u256;
         let height: u256 = _height.into();
         let width: u256 = _width.into();
         let mint_price: u256 = height * width * pixel_price;
-        let eth_l2_address = contract_address_const::<0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7>();
+        let eth_l2_address =
+            contract_address_const::<0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7>();
 
-        IERC20Dispatcher{ contract_address: eth_l2_address }.transferFrom(_to, get_contract_address(), mint_price);
+        IERC20Dispatcher { contract_address: eth_l2_address }
+            .transferFrom(_to, get_contract_address(), mint_price);
 
         let token_id = self.nft_counter.read();
         let mut unsafe_state = ERC721::unsafe_new_contract_state();
@@ -201,10 +193,10 @@ mod StarknetHomepage {
         loop {
             loop {
                 // Valida posicion
-                let minted :bool = self.matrix.read((x,y));
-                assert(!minted,'Some position already minted.');
+                let minted: bool = self.matrix.read((x, y));
+                assert(!minted, 'Some position already minted.');
                 // Si no esta minteada entonces marcamos la posicion como minteada
-                self.matrix.write((x,y),true);
+                self.matrix.write((x, y), true);
                 // Avanza una casilla a la derecha
                 x += 1;
                 // Si llegamos al final salimos del loop
