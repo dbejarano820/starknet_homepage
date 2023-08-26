@@ -113,7 +113,7 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+    fn supportsInterface(self: @ContractState, interface_id: felt252) -> bool {
         let unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::SRC5Impl::supports_interface(@unsafe_state, interface_id)
     }
@@ -131,31 +131,31 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
+    fn tokenUri(self: @ContractState, token_id: u256) -> felt252 {
         let unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::ERC721MetadataImpl::token_uri(@unsafe_state, token_id)
     }
 
     #[external(v0)]
-    fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+    fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
         let unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::ERC721Impl::balance_of(@unsafe_state, account)
     }
 
     #[external(v0)]
-    fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
+    fn ownerOf(self: @ContractState, token_id: u256) -> ContractAddress {
         let unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::ERC721Impl::owner_of(@unsafe_state, token_id)
     }
 
     #[external(v0)]
-    fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
+    fn getApproved(self: @ContractState, token_id: u256) -> ContractAddress {
         let unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::ERC721Impl::get_approved(@unsafe_state, token_id)
     }
 
     #[external(v0)]
-    fn is_approved_for_all(
+    fn isApprovedForAll(
         self: @ContractState, owner: ContractAddress, operator: ContractAddress
     ) -> bool {
         let unsafe_state = ERC721::unsafe_new_contract_state();
@@ -169,7 +169,7 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool) {
+    fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
         let mut unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::ERC721Impl::set_approval_for_all(ref unsafe_state, operator, approved)
     }
@@ -183,7 +183,7 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn safe_transfer_from(
+    fn safeTransferFrom(
         ref self: ContractState,
         from: ContractAddress,
         to: ContractAddress,
@@ -206,7 +206,7 @@ mod StarknetHomepage {
     ) {
         validateMatrix(ref self, _xpos, _ypos, _width, _height);
 
-        let pixel_price: u256 = 100000000000000_u256;
+        let pixel_price: u256 = 10000000000000_u256;
         let height: u256 = _height.into();
         let width: u256 = _width.into();
         let mint_price: u256 = height * width * pixel_price;
@@ -233,7 +233,7 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn get_token_attributes(self: @ContractState, token_id: u256) -> (u8, u8, u8, u8) {
+    fn getTokenAttributes(self: @ContractState, token_id: u256) -> (u8, u8, u8, u8) {
         let xpos = self.xpos.read(token_id);
         let ypos = self.ypos.read(token_id);
         let width = self.width.read(token_id);
@@ -242,22 +242,22 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn get_token_img(self: @ContractState, token_id: u256) -> Array<felt252> {
+    fn getTokenImg(self: @ContractState, token_id: u256) -> Array<felt252> {
         self.img.read(token_id)
     }
 
     #[external(v0)]
-    fn get_token_link(self: @ContractState, token_id: u256) -> Array<felt252> {
+    fn getTokenLink(self: @ContractState, token_id: u256) -> Array<felt252> {
         self.link.read(token_id)
     }
 
     #[external(v0)]
-    fn set_token_img(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
+    fn setTokenImg(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
         self.img.write(token_id, _img);
     }
 
     #[external(v0)]
-    fn set_token_link(ref self: ContractState, token_id: u256, _link: Array<felt252>) {
+    fn setTokenLink(ref self: ContractState, token_id: u256, _link: Array<felt252>) {
         self.link.write(token_id, _link);
     }
 
