@@ -175,7 +175,7 @@ mod StarknetHomepage {
     }
 
     #[external(v0)]
-    fn transfer_from(
+    fn transferFrom(
         ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
     ) {
         let mut unsafe_state = ERC721::unsafe_new_contract_state();
@@ -206,7 +206,7 @@ mod StarknetHomepage {
     ) {
         validateMatrix(ref self, _xpos, _ypos, _width, _height);
 
-        let pixel_price: u256 = 10000000000000_u256;
+        let pixel_price: u256 = 1000000000000000_u256;
         let height: u256 = _height.into();
         let width: u256 = _width.into();
         let mint_price: u256 = height * width * pixel_price;
