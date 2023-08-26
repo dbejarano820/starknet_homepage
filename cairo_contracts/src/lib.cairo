@@ -12,8 +12,6 @@ trait IERC20<TContractState> {
     ) -> bool;
 }
 
-
-
 impl StoreFelt252Array of Store<Array<felt252>>{ 
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Array<felt252>> {
         StoreFelt252Array::read_at_offset(address_domain, base, 0)
@@ -87,7 +85,6 @@ impl StoreFelt252Array of Store<Array<felt252>>{
     }
 }
 
-
 #[starknet::contract]
 mod StarknetHomepage {
     use core::traits::Into;
@@ -136,12 +133,6 @@ mod StarknetHomepage {
 
         validateMatrix(ref self, _xpos, _ypos, _width, _height);
 
-        let token_id = self.nft_counter.read();
-        let mut unsafe_state = ERC721::unsafe_new_contract_state();
-        let mut data: Array<felt252> = ArrayTrait::<felt252>::new();
-        data.append(0);
-
-
         let pixel_price: u256 = 100000000000000_u256;
         let height: u256 = _height.into();
         let width: u256 = _width.into();
@@ -150,6 +141,10 @@ mod StarknetHomepage {
 
         IERC20Dispatcher{ contract_address: eth_l2_address }.transferFrom(_to, get_contract_address(), mint_price);
 
+        let token_id = self.nft_counter.read();
+        let mut unsafe_state = ERC721::unsafe_new_contract_state();
+        let mut data: Array<felt252> = ArrayTrait::<felt252>::new();
+        data.append(0);
         ERC721::InternalImpl::_safe_mint(ref unsafe_state, _to, token_id, data.span());
 
         self.xpos.write(token_id, _xpos);
@@ -161,11 +156,39 @@ mod StarknetHomepage {
         self.nft_counter.write(token_id + 1);
     }
 
-
     #[external(v0)]
     fn name(self: @ContractState) -> felt252 {
         let unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::ERC721MetadataImpl::name(@unsafe_state)
+    }
+
+    #[external(v0)]
+    fn get_token_attributes(self: @ContractState, token_id: u256) -> (u8, u8, u8, u8) {
+        let xpos = self.xpos.read(token_id);
+        let ypos = self.ypos.read(token_id);
+        let width = self.width.read(token_id);
+        let height = self.height.read(token_id);
+        (xpos, ypos, width, height)
+    }
+
+    #[external(v0)]
+    fn get_token_img(self: @ContractState, token_id: u256) -> Array<felt252> {
+        self.img.read(token_id)
+    }
+
+    #[external(v0)]
+    fn get_token_link(self: @ContractState, token_id: u256) -> Array<felt252> {
+        self.link.read(token_id)
+    }
+
+    #[external(v0)]
+    fn set_token_img(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
+        self.img.write(token_id, _img);
+    }
+
+    #[external(v0)]
+    fn set_token_link(ref self: ContractState, token_id: u256, _link: Array<felt252>) {
+        self.link.write(token_id, _link);
     }
 
     fn validateMatrix(ref self: ContractState, _xpos: u8, _ypos: u8, _width: u8, _height: u8) {
