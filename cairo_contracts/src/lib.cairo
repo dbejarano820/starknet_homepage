@@ -8,7 +8,7 @@ use result::ResultTrait;
 #[starknet::interface]
 trait IERC20<TContractState> {
     fn transferFrom(
-        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TContractState, sender: felt252, recipient: felt252, amount: u256
     ) -> bool;
 }
 
@@ -80,7 +80,7 @@ impl StoreFelt252Array of Store<Array<felt252>> {
 
 #[starknet::contract]
 mod StarknetHomepage {
-    use starknet::{ContractAddress, get_contract_address, contract_address_const};
+    use starknet::{ContractAddress, get_contract_address, contract_address_const, contract_address_to_felt252};
     use openzeppelin::token::erc721::ERC721;
     use zeroable::Zeroable;
     use traits::TryInto;
@@ -215,7 +215,7 @@ mod StarknetHomepage {
         let _to: ContractAddress = get_contract_address();
 
         IERC20Dispatcher { contract_address: eth_l2_address }
-            .transferFrom(_to, get_contract_address(), mint_price);
+            .transferFrom(contract_address_to_felt252(_to), contract_address_to_felt252(get_contract_address()), mint_price);
 
         let token_id = self.nft_counter.read();
         let mut unsafe_state = ERC721::unsafe_new_contract_state();
