@@ -80,7 +80,7 @@ impl StoreFelt252Array of Store<Array<felt252>> {
 
 #[starknet::contract]
 mod StarknetHomepage {
-    use starknet::{ContractAddress, get_contract_address, contract_address_const, contract_address_to_felt252};
+    use starknet::{ContractAddress, get_contract_address, get_caller_address,  contract_address_const, contract_address_to_felt252};
     use openzeppelin::token::erc721::ERC721;
     use zeroable::Zeroable;
     use traits::TryInto;
@@ -206,13 +206,13 @@ mod StarknetHomepage {
     ) {
         validateMatrix(ref self, _xpos, _ypos, _width, _height);
 
-        let pixel_price: u256 = 1000000000000000_u256;
+        let cell_price: u256 = 1000000000000000_u256;
         let height: u256 = _height.into();
         let width: u256 = _width.into();
-        let mint_price: u256 = height * width * pixel_price;
+        let mint_price: u256 = height * width * cell_price;
         let eth_l2_address =
             contract_address_const::<0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7>();
-        let _to: ContractAddress = get_contract_address();
+        let _to: ContractAddress = get_caller_address();
 
         IERC20Dispatcher { contract_address: eth_l2_address }
             .transferFrom(contract_address_to_felt252(_to), contract_address_to_felt252(get_contract_address()), mint_price);
