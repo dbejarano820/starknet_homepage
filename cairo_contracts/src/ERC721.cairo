@@ -492,7 +492,7 @@ mod test_nft {
         let arr_img = array!['http://url1.com'];
         let arr_link = array!['http://url2.com'];
 
-        nft.mint2(contract_address, 1, 1, 2, 2, arr_img, arr_link);
+        nft.mint(contract_address, 1, 1, 2, 2, arr_img, arr_link);
 
         let (xpos, ypos, width, height): (u8, u8, u8, u8) = nft.get_token_attributes(0);
 
