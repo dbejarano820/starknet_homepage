@@ -1,5 +1,12 @@
-import React, { useState , useMemo} from 'react';
-import { useAccount, useContractWrite } from '@starknet-react/core'
+import React, { useState, useMemo } from 'react';
+import { useAccount, useContractWrite } from '@starknet-react/core';
+import Button from '@mui/material/Button';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+
+const CELL_MINT_PRICE = 0.001;
 interface CellProps {
   row: number;
   col: number;
@@ -13,7 +20,7 @@ interface MatrixState {
   startCell: { row: number; col: number };
   selectedCells: { row: number; col: number }[];
   showPopup: boolean;
-  mintPrice: number;
+  mintPrice: number | undefined;
 }
 
 const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, handleMouseEnter }) => {
@@ -39,23 +46,21 @@ const Matrix: React.FC = () => {
     startCell: { row: 0, col: 0 },
     selectedCells: [],
     showPopup: false,
-    mintPrice: 0.0001,
+    mintPrice: undefined,
   });
-  const { address } = useAccount()
+  const { address } = useAccount();
   const calls = useMemo(() => {
     const tx = {
       contractAddress: '0x05eefcf9148636f2f0f3b7969e7d0107809ee05201ecbbd69335c40bd031de75',
       entrypoint: 'mint2',
-      //0, 1, 1, 2, 2, arr_img, arr_link
-      //arr_img, arr_link won't be passed in, will be refactored
-      calldata: [address!, 1, 1, 2, 2, ['http://sitio.com/a.jpg'],  ['http://sitio.com/']]
-    }
+      calldata: [address!, 1, 1, 2, 2, ['http://sitio.com/a.jpg'], ['http://sitio.com/']],
+    };
     return tx;
-  }, [address])
+  }, [address]);
 
   const { write } = useContractWrite({ calls });
 
-  const { isSelecting, startCell, selectedCells, showPopup, mintPrice } = state;
+  const { isSelecting, startCell, selectedCells, mintPrice, showPopup } = state;
 
   const handleMouseDown = (row: number, col: number): void => {
     setState((prevState) => ({
@@ -87,6 +92,7 @@ const Matrix: React.FC = () => {
       setState((prevState) => ({
         ...prevState,
         selectedCells: newSelectedCells,
+        mintPrice: newSelectedCells.length * CELL_MINT_PRICE
       }));
     }
   };
@@ -94,6 +100,15 @@ const Matrix: React.FC = () => {
   const handleMintClick = (): void => {
     console.log('Mint NFT for selected cells');
     write();
+    setState((prevState) => ({
+      ...prevState,
+      showPopup: false,
+      selectedCells: [],
+      mintPrice: undefined,
+    }));
+  };
+
+  const handleClosePopup = (): void => {
     setState((prevState) => ({
       ...prevState,
       showPopup: false,
@@ -114,7 +129,7 @@ const Matrix: React.FC = () => {
         {Array.from({ length: totalRows }).map((_, row) =>
           Array.from({ length: totalCols }).map((_, col) => (
             <Cell
-              key={`${row}-${col}`}
+              key={`${row},${col}`}
               row={row}
               col={col}
               isSelected={selectedCells.some((cell) => cell.row === row && cell.col === col)}
@@ -125,37 +140,30 @@ const Matrix: React.FC = () => {
         )}
       </div>
 
-      {showPopup && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            zIndex: 1,
+      <Modal
+        open={showPopup}
+        onClose={handleClosePopup}
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            bgcolor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            p: 3,
           }}
         >
-          <div
-            style={{
-              padding: '20px',
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            <h2>Mint NFT</h2>
-            <p>
-              Price: {mintPrice.toFixed(5)} ETH for {selectedCells.length} cells
-            </p>
-            <button onClick={handleMintClick}>Mint</button>
-          </div>
-        </div>
-      )}
+          <Typography variant="h5">Mint NFT</Typography>
+          <Typography>
+            Price: {mintPrice} ETH for {selectedCells.length} cells
+          </Typography>
+          <Button onClick={handleMintClick}>Mint</Button>
+        </Box>
+      </Modal>
     </div>
   );
 };
