@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
 
 const CELL_MINT_PRICE = 0.001;
 interface CellProps {
@@ -99,6 +99,7 @@ const Matrix: React.FC = () => {
 
   const handleMintClick = (): void => {
     console.log('Mint NFT for selected cells');
+    console.log(selectedCells);
     write();
     setState((prevState) => ({
       ...prevState,
@@ -158,10 +159,13 @@ const Matrix: React.FC = () => {
           }}
         >
           <Typography variant="h5">Mint NFT</Typography>
-          <Typography>
-            Price: {mintPrice} ETH for {selectedCells.length} cells
+          <Typography mt={1} mb={1}>
+            Price: {mintPrice} ETH + fees for {selectedCells.length} cells
           </Typography>
-          <Button onClick={handleMintClick}>Mint</Button>
+          <Grid container justifyContent="space-around">
+            <Button onClick={handleClosePopup}>Cancel</Button>
+            <Button onClick={handleMintClick}>Mint</Button>
+          </Grid>
         </Box>
       </Modal>
     </div>
