@@ -206,7 +206,7 @@ mod StarknetHomepage {
     ) {
         validateMatrix(ref self, _xpos, _ypos, _width, _height);
 
-        let cell_price: u256 = 1000000000000000_u256;
+        let cell_price: u256 = 10000000000000000_u256;
         let height: u256 = _height.into();
         let width: u256 = _width.into();
         let mint_price: u256 = height * width * cell_price;
