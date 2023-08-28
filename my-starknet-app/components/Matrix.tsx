@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 
-const CELL_MINT_PRICE = 0.001;
+const CELL_MINT_PRICE = 0.01;
 interface CellProps {
   row: number;
   col: number;
@@ -29,7 +29,7 @@ const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, hand
       style={{
         width: '10px',
         height: '10px',
-        backgroundColor: isSelected ? 'yellow' : '#f0f0f0',
+        backgroundColor: isSelected ? '#0C0D4E' : '#f0f0f0',
         border: '1px solid black',
       }}
       onMouseDown={() => handleMouseDown(row, col)}
@@ -77,6 +77,7 @@ const Matrix: React.FC = () => {
         ...prevState,
         isSelecting: false,
         showPopup: selectedCells.length >= 1,
+        mintPrice: selectedCells.length * CELL_MINT_PRICE
       }));
     }
   };
@@ -92,7 +93,6 @@ const Matrix: React.FC = () => {
       setState((prevState) => ({
         ...prevState,
         selectedCells: newSelectedCells,
-        mintPrice: newSelectedCells.length * CELL_MINT_PRICE
       }));
     }
   };
@@ -100,6 +100,7 @@ const Matrix: React.FC = () => {
   const handleMintClick = (): void => {
     console.log('Mint NFT for selected cells');
     console.log(selectedCells);
+    console.log(mintPrice);
     write();
     setState((prevState) => ({
       ...prevState,
@@ -114,6 +115,7 @@ const Matrix: React.FC = () => {
       ...prevState,
       showPopup: false,
       selectedCells: [],
+      mintPrice: undefined,
     }));
   };
 
@@ -160,7 +162,7 @@ const Matrix: React.FC = () => {
         >
           <Typography variant="h5">Mint NFT</Typography>
           <Typography mt={1} mb={1}>
-            Price: {mintPrice} ETH + fees for {selectedCells.length} cells
+            Price: {mintPrice} ETH + fees for {selectedCells.length * 100} pixels
           </Typography>
           <Grid container justifyContent="space-around">
             <Button onClick={handleClosePopup}>Cancel</Button>
