@@ -48,19 +48,25 @@ const Matrix: React.FC = () => {
     showPopup: false,
     mintPrice: undefined,
   });
+
   const { address } = useAccount();
+  const { isSelecting, startCell, selectedCells, mintPrice, showPopup } = state;
+
   const calls = useMemo(() => {
-    const tx = {
-      contractAddress: '0x05eefcf9148636f2f0f3b7969e7d0107809ee05201ecbbd69335c40bd031de75',
-      entrypoint: 'mint2',
-      calldata: [address!, 1, 1, 2, 2, ['http://sitio.com/a.jpg'], ['http://sitio.com/']],
+    const tx1 = {
+      contractAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+      entrypoint: 'approve',
+      calldata: [ "0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97", '10000000000000000', '0'], //here add mintPrice functionality
     };
-    return tx;
-  }, [address]);
+    const tx2 = {
+      contractAddress: '0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97',
+      entrypoint: 'mint',
+      calldata: [1, 3, 3, 2, ['http://sitio.com/a.jpg'], ['http://sitio.com/']], //this is failing, issue with contract?
+    };
+    return [tx1, tx2];
+  }, [mintPrice]);
 
   const { write } = useContractWrite({ calls });
-
-  const { isSelecting, startCell, selectedCells, mintPrice, showPopup } = state;
 
   const handleMouseDown = (row: number, col: number): void => {
     setState((prevState) => ({
