@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { EditNFTModal } from './EditNftModal';
 import { StarknetHomepageNFT } from './types';
+import { nftsMock } from '../mocks/nfts';
 
-interface DropdownProps {
-  nfts: StarknetHomepageNFT[];
-}
+const NftDropdown = () => {
+  const nfts = nftsMock; //replace with hook calling getByOwner
 
-const NftDropdown: React.FC<DropdownProps> = ({ nfts }) => {
   const [selectedNFT, setSelectedNFT] = useState<StarknetHomepageNFT>({
     id: '',
     xpos: 1,

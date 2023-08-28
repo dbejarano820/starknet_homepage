@@ -4,8 +4,6 @@ import WalletBar from '../components/WalletBar'
 import Matrix from '../components/Matrix';
 import Footer from '../components/Footer';
 import NftDropdown from '../components/NftDropdown';
-import { nftsMock } from '../mocks/nfts';
-
 import { Container, Grid, Divider, Typography } from '@mui/material';
 
 export default function Home() {
@@ -34,7 +32,7 @@ export default function Home() {
             </Grid>
           </Grid>
           <Matrix />
-          <NftDropdown nfts={nftsMock}/>
+          <NftDropdown />
           <Footer />
         </Container>
       </main>
