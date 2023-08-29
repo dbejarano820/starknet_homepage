@@ -19,12 +19,12 @@ export const EditNFTModal = ({ open, onClose, nft } : NFTModalProps) => {
     const tx1 = {   //if newImage is set
         contractAddress: "0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97",
         entrypoint: 'setTokenImg',
-        calldata: [nft.id, newImage]
+        calldata: [nft.id, [newImage]]
     };
     const tx2 = { //if newLink is set
       contractAddress: "0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97",
       entrypoint: 'setTokenLink',
-      calldata: [nft.id, newLink]
+      calldata: [nft.id, [newLink]]
     }
     return [tx1, tx2];
   }, [nft, newImage]);

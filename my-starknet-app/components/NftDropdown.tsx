@@ -8,7 +8,7 @@ const NftDropdown = () => {
   const nfts = nftsMock; //replace with hook calling getByOwner
 
   const [selectedNFT, setSelectedNFT] = useState<StarknetHomepageNFT>({
-    id: '',
+    id: 0,
     xpos: 1,
     ypos: 1,
     width: 1,
@@ -25,7 +25,7 @@ const NftDropdown = () => {
 
   const handleCloseModal = () => {
     setSelectedNFT({
-      id: '',
+      id: 0,
       xpos: 1,
       ypos: 1,
       width: 1,
