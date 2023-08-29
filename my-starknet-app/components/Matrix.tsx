@@ -1,7 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { useContractWrite } from '@starknet-react/core';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useContractWrite, useContractRead } from '@starknet-react/core';
 import { CircularProgress, TextField, Grid, Typography, Box, Modal, Button } from '@mui/material';
 import { ERC_20_ADDRESS, STARKNET_HOMEPAGE_ERC721_ADDRESS } from '../constants';
+import { StarknetHomepageNFT } from './types';
+import starknetHomepageABI from '../abi/homepage.json'
+import { deserializeTokenObject } from '../utils/deserializeTokenObject';
 
 const CELL_MINT_PRICE = 0.01;
 interface CellProps {
@@ -56,6 +59,24 @@ const Matrix: React.FC = () => {
   const [newImage, setNewImage] = useState('');
 
   const { isSelecting, startCell, selectedCells, mintPrice, showPopup, width, height } = state;
+
+  const [allNfts, setAllNfts] = useState<StarknetHomepageNFT[]>([])
+
+  const { data, isLoading } = useContractRead({
+    address: STARKNET_HOMEPAGE_ERC721_ADDRESS,
+    functionName: 'getAllTokens',
+    abi: starknetHomepageABI,
+    args: []
+  });
+  
+  useEffect(() => {
+    if (!isLoading) {
+      const arr = data?.map((nft) => {
+        return deserializeTokenObject(nft);
+      });
+      setAllNfts(arr || []);
+    }
+  }, [data, isLoading]);
 
   const mintCall = useMemo(() => {
     const tx = {
@@ -163,6 +184,10 @@ const Matrix: React.FC = () => {
       mintPrice: undefined,
     }));
   };
+
+  // if(isLoading) {
+  //   return <CircularProgress size={60} sx={{padding: 8}} />
+  // }
 
   return (
     <div style={{ width: 'auto', height: '100vh', cursor: 'cell', padding: 'inherit', display: 'inline' }}>
