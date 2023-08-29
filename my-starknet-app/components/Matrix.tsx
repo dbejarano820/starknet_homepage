@@ -1,11 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useContractWrite } from '@starknet-react/core';
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, TextField, Grid, Typography, Box, Modal, Button } from '@mui/material';
 
 const CELL_MINT_PRICE = 0.01;
 interface CellProps {
@@ -22,6 +17,8 @@ interface MatrixState {
   selectedCells: { row: number; col: number }[];
   showPopup: boolean;
   mintPrice: number | undefined;
+  width: number;
+  height: number;
 }
 
 const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, handleMouseEnter }) => {
@@ -48,21 +45,25 @@ const Matrix: React.FC = () => {
     selectedCells: [],
     showPopup: false,
     mintPrice: undefined,
+    width: 0,
+    height: 0,
   });
   const [isApproveLoading, setIsApproveLoading] = useState(false);
   const [isMintLoading, setIsMintLoading] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
+  const [newLink, setNewLink] = useState('');
+  const [newImage, setNewImage] = useState('');
 
-  const { isSelecting, startCell, selectedCells, mintPrice, showPopup } = state;
+  const { isSelecting, startCell, selectedCells, mintPrice, showPopup, width, height } = state;
 
   const mintCall = useMemo(() => {
     const tx = {
       contractAddress: '0x06c6ee84e253dc6e2efd1c590555fcbc4b676bec2e21b2b1a686a29951000478',
       entrypoint: 'mint',
-      calldata: [3, 2, 3, 2, "http://sitiositiositiositio.com/a.jpg" ,"http://sitiositiositiositio.com/a.jpg"] //this is failing, issue with contract?
+      calldata: [startCell.row, startCell.col, width, height, newImage, newLink]
     };
     return [tx];
-  }, [mintPrice]);
+  }, [startCell, newImage, newLink, width, height]);
 
   const approveCall = useMemo(() => {
     const price = selectedCells.length * 10000000000000000;
@@ -70,7 +71,7 @@ const Matrix: React.FC = () => {
     const tx = {
       contractAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
       entrypoint: 'approve',
-      calldata: [ '0x06c6ee84e253dc6e2efd1c590555fcbc4b676bec2e21b2b1a686a29951000478', `${price}`, '0'], //here add mintPrice functionality
+      calldata: [ '0x06c6ee84e253dc6e2efd1c590555fcbc4b676bec2e21b2b1a686a29951000478', `${price}`, '0'],
     };
     return [tx];
   }, [selectedCells]);
@@ -102,14 +103,21 @@ const Matrix: React.FC = () => {
   const handleMouseEnter = (row: number, col: number): void => {
     if (isSelecting) {
       const newSelectedCells: any[] = [];
+      const numRows = Math.abs(row - startCell.row) + 1;
+      const numCols = Math.abs(col - startCell.col) + 1;
+  
       for (let r = Math.min(startCell.row, row); r <= Math.max(startCell.row, row); r++) {
         for (let c = Math.min(startCell.col, col); c <= Math.max(startCell.col, col); c++) {
           newSelectedCells.push({ row: r, col: c });
         }
       }
+  
       setState((prevState) => ({
         ...prevState,
         selectedCells: newSelectedCells,
+        mintPrice: newSelectedCells.length * CELL_MINT_PRICE,
+        width: numCols,
+        height: numRows,
       }));
     }
   };
@@ -214,6 +222,22 @@ const Matrix: React.FC = () => {
           </Button>
         )}
         </Grid>
+        <TextField
+          label={'Link for token'}
+          value={newLink}
+          onChange={(e) => setNewLink(e.target.value)}
+          fullWidth
+          margin="normal"
+          disabled={!isApproved}
+        />
+        <TextField
+          label={'Image for token'}
+          value={newImage}
+          onChange={(e) => setNewImage(e.target.value)}
+          fullWidth
+          margin="normal"
+          disabled={!isApproved}
+        />
       </Box>
     </Modal>
     </div>
