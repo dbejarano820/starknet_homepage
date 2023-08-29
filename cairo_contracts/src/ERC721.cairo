@@ -264,26 +264,26 @@ mod StarknetHomepage {
         }
 
         fn getTokensByOwner(self: @ContractState, _address: ContractAddress) -> Array<Cell> {
-            let mut i: u256 = 0_256;
-            let mut cell: Array<Cell> = ArrayTrait::new();
+            let mut i: u256 = 0_u256;
+            let mut cell: Array<Cell> = ArrayTrait::<Cell>::new();
+            let total_counter: u256 = self.nft_counter.read();
             loop {
-                if i < self.nft_counter.read() {
-                    if self.ownerOf(i) == get_caller_address() {
-                        cell
-                            .append(
-                                Cell {
-                                    token_id: i,
-                                    xpos: self.xpos.read(i),
-                                    ypos: self.ypos.read(i),
-                                    width: self.width.read(i),
-                                    height: self.height.read(i)
-                                }
-                            );
-                    };
-                } else {
+                if i >= total_counter {
                     break;
                 };
-                i += 1;
+                if self.ownerOf(i) == _address {
+                    cell
+                        .append(
+                            Cell {
+                                token_id: i,
+                                xpos: self.xpos.read(i),
+                                ypos: self.ypos.read(i),
+                                width: self.width.read(i),
+                                height: self.height.read(i)
+                            }
+                        );
+                };
+                i = i + 1_u256;
             };
             return (cell);
         }
@@ -296,8 +296,8 @@ mod StarknetHomepage {
             let mut y: u8 = _ypos;
             let mut x: u8 = _xpos;
             // Validar que las posiciones no se salen de la matrix
-            assert(_xpos + _width < 100_u8, 'Minting an invalid position');
-            assert(_ypos + _height < 100_u8, 'Minting an invalid position');
+            assert(_xpos + _width <= 100_u8, 'Minting an invalid position');
+            assert(_ypos + _height <= 100_u8, 'Minting an invalid position');
             // Validar que las posiciones no se encuentran minteadas
             loop {
                 // Si llegamos al final entonces salimos del loop
