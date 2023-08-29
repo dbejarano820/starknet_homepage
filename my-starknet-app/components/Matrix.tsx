@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useContractWrite } from '@starknet-react/core';
 import { CircularProgress, TextField, Grid, Typography, Box, Modal, Button } from '@mui/material';
+import { ERC_20_ADDRESS, STARKNET_HOMEPAGE_ERC721_ADDRESS } from '../constants';
 
 const CELL_MINT_PRICE = 0.01;
 interface CellProps {
@@ -58,7 +59,7 @@ const Matrix: React.FC = () => {
 
   const mintCall = useMemo(() => {
     const tx = {
-      contractAddress: '0x06c6ee84e253dc6e2efd1c590555fcbc4b676bec2e21b2b1a686a29951000478',
+      contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
       entrypoint: 'mint',
       calldata: [startCell.row, startCell.col, width, height, newImage, newLink]
     };
@@ -69,9 +70,9 @@ const Matrix: React.FC = () => {
     const price = selectedCells.length * 10000000000000000;
 
     const tx = {
-      contractAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+      contractAddress: ERC_20_ADDRESS,
       entrypoint: 'approve',
-      calldata: [ '0x06c6ee84e253dc6e2efd1c590555fcbc4b676bec2e21b2b1a686a29951000478', `${price}`, '0'],
+      calldata: [STARKNET_HOMEPAGE_ERC721_ADDRESS, `${price}`, '0'],
     };
     return [tx];
   }, [selectedCells]);

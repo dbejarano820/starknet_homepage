@@ -5,8 +5,12 @@ import Matrix from '../components/Matrix';
 import Footer from '../components/Footer';
 import NftDropdown from '../components/NftDropdown';
 import { Container, Grid, Divider, Typography } from '@mui/material';
+import { useAccount } from '@starknet-react/core';
+
 
 export default function Home() {
+  const { address } = useAccount();
+
   return (
     <>
       <Head>
@@ -28,11 +32,11 @@ export default function Home() {
               <Typography  variant='subtitle1'>0.0001 ETH per pixel</Typography>
               <Divider orientation="vertical" flexItem sx={{borderColor: "black"}} />
               <Typography  variant='subtitle1'>Own a piece of Starknet History</Typography>
-              <WalletBar />
+              <WalletBar account={address}/>
             </Grid>
           </Grid>
           <Matrix />
-          <NftDropdown />
+          <NftDropdown account={address} />
           <Footer />
         </Container>
       </main>

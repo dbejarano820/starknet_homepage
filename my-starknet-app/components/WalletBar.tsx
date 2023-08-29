@@ -92,8 +92,7 @@ function ConnectWallet() {
   )
 }
 
-export default function WalletBar() {
-  const { address } = useAccount()
+export default function WalletBar({account} : {account: string | undefined}) {
 
-  return address ? <WalletConnected address={address} /> : <ConnectWallet />
+  return account ? <WalletConnected address={account} /> : <ConnectWallet />
 }

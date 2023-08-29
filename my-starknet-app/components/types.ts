@@ -1,5 +1,5 @@
 export type StarknetHomepageNFT = {
-    id: number;
+    token_id: number;
     xpos: number;
     ypos: number;
     width: number;
