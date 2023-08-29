@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { useAccount, useContractWrite } from '@starknet-react/core';
+import { useContractWrite } from '@starknet-react/core';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
+import { CircularProgress } from '@mui/material';
 
 const CELL_MINT_PRICE = 0.01;
 interface CellProps {
@@ -48,25 +49,35 @@ const Matrix: React.FC = () => {
     showPopup: false,
     mintPrice: undefined,
   });
+  const [isApproveLoading, setIsApproveLoading] = useState(false);
+  const [isMintLoading, setIsMintLoading] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
 
-  const { address } = useAccount();
   const { isSelecting, startCell, selectedCells, mintPrice, showPopup } = state;
 
-  const calls = useMemo(() => {
-    const tx1 = {
-      contractAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-      entrypoint: 'approve',
-      calldata: [ "0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97", '10000000000000000', '0'], //here add mintPrice functionality
-    };
-    const tx2 = {
-      contractAddress: '0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97',
+  const mintCall = useMemo(() => {
+    const tx = {
+      contractAddress: '0x06c6ee84e253dc6e2efd1c590555fcbc4b676bec2e21b2b1a686a29951000478',
       entrypoint: 'mint',
-      calldata: [1, 3, 3, 2, ['http://sitio.com/a.jpg'], ['http://sitio.com/']], //this is failing, issue with contract?
+      calldata: [3, 2, 3, 2, "http://sitiositiositiositio.com/a.jpg" ,"http://sitiositiositiositio.com/a.jpg"] //this is failing, issue with contract?
     };
-    return [tx1, tx2];
+    return [tx];
   }, [mintPrice]);
 
-  const { write } = useContractWrite({ calls });
+  const approveCall = useMemo(() => {
+    const price = selectedCells.length * 10000000000000000;
+
+    const tx = {
+      contractAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+      entrypoint: 'approve',
+      calldata: [ '0x06c6ee84e253dc6e2efd1c590555fcbc4b676bec2e21b2b1a686a29951000478', `${price}`, '0'], //here add mintPrice functionality
+    };
+    return [tx];
+  }, [selectedCells]);
+
+  const { writeAsync: writeApprove } = useContractWrite({ calls: approveCall });
+
+  const { writeAsync: writeMint } = useContractWrite({ calls: mintCall });
 
   const handleMouseDown = (row: number, col: number): void => {
     setState((prevState) => ({
@@ -103,18 +114,37 @@ const Matrix: React.FC = () => {
     }
   };
 
-  const handleMintClick = (): void => {
-    console.log('Mint NFT for selected cells');
-    console.log(selectedCells);
-    console.log(mintPrice);
-    write();
-    setState((prevState) => ({
-      ...prevState,
-      showPopup: false,
-      selectedCells: [],
-      mintPrice: undefined,
-    }));
+  const handleApproveClick = async (): Promise<void> => {
+    setIsApproveLoading(true);
+
+    try {
+      await writeApprove();
+      setIsApproved(true);
+      setIsApproveLoading(false);
+    } catch (error) {
+      console.error('Error approving transaction:', error);
+      setIsApproveLoading(false);
+    }
   };
+
+  const handleMintClick = async (): Promise<void> => {
+    setIsMintLoading(true);
+
+    try {
+      await writeMint();
+      setIsMintLoading(false);
+      setState((prevState) => ({
+        ...prevState,
+        showPopup: false,
+        selectedCells: [],
+        mintPrice: undefined,
+      }));
+    } catch (error) {
+      console.error('Error minting transaction:', error);
+      setIsMintLoading(false);
+    }
+  };
+
 
   const handleClosePopup = (): void => {
     setState((prevState) => ({
@@ -150,32 +180,42 @@ const Matrix: React.FC = () => {
       </div>
 
       <Modal
-        open={showPopup}
-        onClose={handleClosePopup}
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+      open={showPopup}
+      onClose={handleClosePopup}
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Box
+        sx={{
+          bgcolor: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+          p: 3,
         }}
       >
-        <Box
-          sx={{
-            bgcolor: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-            p: 3,
-          }}
-        >
-          <Typography variant="h5">Mint NFT</Typography>
-          <Typography mt={1} mb={1}>
-            Price: {mintPrice} ETH + fees for {selectedCells.length * 100} pixels
-          </Typography>
-          <Grid container justifyContent="space-around">
-            <Button onClick={handleClosePopup}>Cancel</Button>
-            <Button onClick={handleMintClick}>Mint</Button>
-          </Grid>
-        </Box>
-      </Modal>
+        <Typography variant="h5">Mint NFT</Typography>
+        <Typography mt={1} mb={1}>
+          Price: {mintPrice} ETH + fees for {selectedCells.length * 100} pixels
+        </Typography>
+        <Grid container justifyContent='space-around'>
+        {isApproveLoading ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Button onClick={handleApproveClick} disabled={isApproved}>Approve</Button>
+        )}
+        {isMintLoading ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Button onClick={handleMintClick} disabled={!isApproved}>
+            Mint
+          </Button>
+        )}
+        </Grid>
+      </Box>
+    </Modal>
     </div>
   );
 };
