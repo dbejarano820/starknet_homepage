@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Modal, Typography, TextField, Button, CircularProgress,  } from '@mui/material';
 import { StarknetHomepageNFT } from './types';
 import { useContractWrite } from '@starknet-react/core'
+import { STARKNET_HOMEPAGE_ERC721_ADDRESS } from '../constants';
 
 interface NFTModalProps {
     open: boolean;
@@ -16,18 +17,29 @@ export const EditNFTModal = ({ open, onClose, nft } : NFTModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const calls = useMemo(() => {
-    const tx1 = {   //if newImage is set
-        contractAddress: "0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97",
+    const txs = [];
+  
+    if (newImage !== '' && nft) {
+      const tx1 = {
+        contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
         entrypoint: 'setTokenImg',
-        calldata: [nft.token_id, [newImage]]
-    };
-    const tx2 = { //if newLink is set
-      contractAddress: "0x04b61d97c8a8797cb59f44820d34c66fb9404cfc2ceef6b9655461e110e8da97",
-      entrypoint: 'setTokenLink',
-      calldata: [nft.token_id, [newLink]]
+        calldata: [nft.token_id, newImage],
+      };
+      txs.push(tx1);
     }
-    return [tx1, tx2];
-  }, [nft, newImage]);
+  
+    if (newLink !== '' && nft) {
+      const tx2 = {
+        contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
+        entrypoint: 'setTokenLink',
+        calldata: [nft.token_id, newLink],
+      };
+      txs.push(tx2);
+    }
+  
+    return txs;
+  }, [nft, newImage, newLink]);
+  
 
   const { writeAsync } = useContractWrite({ calls });
 
