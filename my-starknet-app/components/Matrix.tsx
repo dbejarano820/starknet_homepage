@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useContractWrite, useContractRead } from '@starknet-react/core';
+import { shortString } from "starknet";
 import { CircularProgress, TextField, Grid, Typography, Box, Modal, Button } from '@mui/material';
 import { ERC_20_ADDRESS, STARKNET_HOMEPAGE_ERC721_ADDRESS } from '../constants';
 import { StarknetHomepageNFT } from './types';
@@ -13,6 +14,7 @@ interface CellProps {
   isSelected: boolean;
   handleMouseDown: (row: number, col: number) => void;
   handleMouseEnter: (row: number, col: number) => void;
+  nft: StarknetHomepageNFT | undefined;
 }
 
 interface MatrixState {
@@ -25,20 +27,28 @@ interface MatrixState {
   height: number;
 }
 
-const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, handleMouseEnter }) => {
+const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, handleMouseEnter, nft }) => {
+  const isNftCell =
+    nft && row >= nft.ypos && row < nft.ypos + nft.height && col >= nft.xpos && col < nft.xpos + nft.width;
+
   return (
     <div
       style={{
         width: '10px',
         height: '10px',
-        backgroundColor: isSelected ? '#0C0D4E' : '#f0f0f0',
+        backgroundColor: isSelected ? '#0C0D4E' : isNftCell ? 'transparent' : '#f0f0f0',
         border: '1px solid black',
+        backgroundImage: isNftCell ? `url(${nft.img})` : 'none',
+        backgroundSize: isNftCell ? `${nft.width * 10}px ${nft.height * 10}px` : 'auto',
+        backgroundPosition: isNftCell ? `-${(col - nft.xpos) * 10}px -${(row - nft.ypos) * 10}px` : 'none',
       }}
       onMouseDown={() => handleMouseDown(row, col)}
       onMouseEnter={() => handleMouseEnter(row, col)}
     ></div>
   );
 };
+
+
 
 const Matrix: React.FC = () => {
   const totalRows = 100;
@@ -79,10 +89,13 @@ const Matrix: React.FC = () => {
   }, [data, isLoading]);
 
   const mintCall = useMemo(() => {
+    const splitNewImage: string[] = shortString.splitLongString(newImage);
+    const splitNewLink: string[] = shortString.splitLongString(newLink);
+
     const tx = {
       contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
       entrypoint: 'mint',
-      calldata: [startCell.row, startCell.col, width, height, newImage, newLink]
+      calldata: [startCell.row, startCell.col, width, height, splitNewImage, splitNewLink]
     };
     return [tx];
   }, [startCell, newImage, newLink, width, height]);
@@ -185,9 +198,9 @@ const Matrix: React.FC = () => {
     }));
   };
 
-  // if(isLoading) {
-  //   return <CircularProgress size={60} sx={{padding: 8}} />
-  // }
+  if(isLoading) {
+    return <CircularProgress size={60} sx={{padding: 8}} />
+  }
 
   return (
     <div style={{ width: 'auto', height: '100vh', cursor: 'cell', padding: 'inherit', display: 'inline' }}>
@@ -195,22 +208,36 @@ const Matrix: React.FC = () => {
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${totalCols}, 10px)`,
+          gridTemplateRows: `repeat(${totalRows}, 10px)`,
           justifyContent: 'center',
         }}
         onMouseUp={handleMouseUp}
       >
         {Array.from({ length: totalRows }).map((_, row) =>
-          Array.from({ length: totalCols }).map((_, col) => (
-            <Cell
-              key={`${row},${col}`}
-              row={row}
-              col={col}
-              isSelected={selectedCells.some((cell) => cell.row === row && cell.col === col)}
-              handleMouseDown={handleMouseDown}
-              handleMouseEnter={handleMouseEnter}
-            />
-          ))
+          Array.from({ length: totalCols }).map((_, col) => {
+            const nft = allNfts.find(
+              (n) => {
+                const evaluation = row >= n.ypos && row < n.ypos + n.height && col >= n.xpos && col < n.xpos + n.width
+                console.log(`Row: ${row}, Col: ${col}, NFT: ${evaluation}`);
+                return evaluation;
+              }
+            );
+            const isSelected = selectedCells.some((cell) => cell.row === row && cell.col === col);
+            return (
+              <Cell
+                key={`${row},${col}`}
+                row={row}
+                col={col}
+                isSelected={isSelected}
+                handleMouseDown={handleMouseDown}
+                handleMouseEnter={handleMouseEnter}
+                nft={nft} // Pass the whole NFT object to the Cell component
+              />
+            );
+          })
         )}
+
+
       </div>
 
       <Modal
