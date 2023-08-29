@@ -80,7 +80,10 @@ impl StoreFelt252Array of Store<Array<felt252>> {
 
 #[starknet::contract]
 mod StarknetHomepage {
-    use starknet::{ContractAddress, get_contract_address, get_caller_address,  contract_address_const, contract_address_to_felt252};
+    use starknet::{
+        ContractAddress, get_contract_address, get_caller_address, contract_address_const,
+        contract_address_to_felt252
+    };
     use openzeppelin::token::erc721::ERC721;
     use zeroable::Zeroable;
     use traits::TryInto;
@@ -124,7 +127,7 @@ mod StarknetHomepage {
 
     #[external(v0)]
     #[generate_trait]
-    impl IStarknetHomepageImpl of IStarknetHomepage{
+    impl IStarknetHomepageImpl of IStarknetHomepage {
         fn supportsInterface(self: @ContractState, interface_id: felt252) -> bool {
             let unsafe_state = ERC721::unsafe_new_contract_state();
             ERC721::SRC5Impl::supports_interface(@unsafe_state, interface_id)
@@ -215,7 +218,11 @@ mod StarknetHomepage {
             let _to: ContractAddress = get_caller_address();
 
             IERC20Dispatcher { contract_address: eth_l2_address }
-                .transferFrom(contract_address_to_felt252(_to), contract_address_to_felt252(get_contract_address()), mint_price);
+                .transferFrom(
+                    contract_address_to_felt252(_to),
+                    contract_address_to_felt252(get_contract_address()),
+                    mint_price
+                );
 
             let token_id: u256 = self.nft_counter.read();
             let mut unsafe_state = ERC721::unsafe_new_contract_state();
@@ -262,53 +269,63 @@ mod StarknetHomepage {
             loop {
                 if i < self.nft_counter.read() {
                     if self.ownerOf(i) == get_caller_address() {
-                        cell.append(Cell{token_id: i,
-                                    xpos: self.xpos.read(i), 
-                                    ypos: self.ypos.read(i), 
-                                    width: self.width.read(i), 
-                                    height: self.height.read(i)});
+                        cell
+                            .append(
+                                Cell {
+                                    token_id: i,
+                                    xpos: self.xpos.read(i),
+                                    ypos: self.ypos.read(i),
+                                    width: self.width.read(i),
+                                    height: self.height.read(i)
+                                }
+                            );
                     };
                 } else {
                     break;
                 };
                 i += 1;
             };
-            return(cell);
+            return (cell);
         }
     }
-    
+
 
     #[generate_trait]
     impl PrivateFunctons of PrivateFunctionsTrait {
         fn validateMatrix(ref self: ContractState, _xpos: u8, _ypos: u8, _width: u8, _height: u8) {
-            let mut x: u8 = _xpos;
             let mut y: u8 = _ypos;
+            let mut x: u8 = _xpos;
             // Validar que las posiciones no se salen de la matrix
             assert(_xpos + _width < 100_u8, 'Minting an invalid position');
             assert(_ypos + _height < 100_u8, 'Minting an invalid position');
             // Validar que las posiciones no se encuentran minteadas
             loop {
-                loop {
-                    // Valida posicion
-                    let minted: bool = self.matrix.read((x, y));
-                    assert(!minted, 'Some position already minted.');
-                    // Si no esta minteada entonces marcamos la posicion como minteada
-                    self.matrix.write((x, y), true);
-                    // Avanza una casilla a la derecha
-                    x += 1;
-                    // Si llegamos al final salimos del loop
-                    if x == (_xpos + _width) {
-                        break;
-                    };
-                };
-                // Avanza una casilla hacia abajo
-                y += 1;
                 // Si llegamos al final entonces salimos del loop
                 if y == (_ypos + _height) {
                     break;
                 };
+
+                x = _xpos;
+
+                loop {
+                    // Si llegamos al final salimos del loop
+                    if x == (_xpos + _width) {
+                        break;
+                    };
+
+                    // Valida posicion
+                    let minted: bool = self.matrix.read((x, y));
+                    assert(!minted, 'Some position already minted.');
+
+                    // Si no esta minteada entonces marcamos la posicion como minteada
+                    self.matrix.write((x, y), true);
+
+                    // Avanza una casilla a la derecha
+                    x += 1;
+                };
+                // Avanza una casilla hacia abajo
+                y += 1;
             };
         }
     }
-    
 }
