@@ -101,6 +101,8 @@ mod StarknetHomepage {
         ypos: u8,
         width: u8,
         height: u8,
+        img: Array<felt252>,
+        link: Array<felt252>,
     }
 
     #[storage]
@@ -279,10 +281,37 @@ mod StarknetHomepage {
                                 xpos: self.xpos.read(i),
                                 ypos: self.ypos.read(i),
                                 width: self.width.read(i),
-                                height: self.height.read(i)
+                                height: self.height.read(i),
+                                img: self.img.read(i),
+                                link: self.link.read(i)
                             }
                         );
                 };
+                i = i + 1_u256;
+            };
+            return (cell);
+        }
+
+        fn getAllTokens(self: @ContractState) -> Array<Cell> {
+            let mut i: u256 = 0_u256;
+            let mut cell: Array<Cell> = ArrayTrait::<Cell>::new();
+            let total_counter: u256 = self.nft_counter.read();
+            loop {
+                if i >= total_counter {
+                    break;
+                };
+                cell
+                    .append(
+                        Cell {
+                            token_id: i,
+                            xpos: self.xpos.read(i),
+                            ypos: self.ypos.read(i),
+                            width: self.width.read(i),
+                            height: self.height.read(i),
+                            img: self.img.read(i),
+                            link: self.link.read(i)
+                        }
+                    );
                 i = i + 1_u256;
             };
             return (cell);
