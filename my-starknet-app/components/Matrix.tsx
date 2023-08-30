@@ -29,7 +29,11 @@ interface MatrixState {
 
 const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, handleMouseEnter, nft }) => {
   const isNftCell = !!nft;
-
+  const handleCellClick = () => {
+    if (isNftCell && nft?.link) {
+      window.open(nft.link, '_blank'); // Open the link in a new tab
+    }
+  };
   return (
     <div
       style={{
@@ -45,6 +49,7 @@ const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, hand
       }}
       onMouseDown={() => handleMouseDown(row, col)}
       onMouseEnter={() => handleMouseEnter(row, col)}
+      onClick={handleCellClick}
     ></div>
   );
 };
@@ -118,14 +123,27 @@ const Matrix: React.FC = () => {
   const { writeAsync: writeMint } = useContractWrite({ calls: mintCall });
 
   const handleMouseDown = (row: number, col: number): void => {
-    setState((prevState) => ({
-      ...prevState,
-      isSelecting: true,
-      startCell: { row, col },
-      selectedCells: [{ row, col }],
-    }));
-  };
-
+    // Check if the clicked cell contains an NFT image
+    const clickedCellHasNft = allNfts.some(
+      (n) =>
+        row >= n.ypos &&
+        row < n.ypos + n.height &&
+        col >= n.xpos &&
+        col < n.xpos + n.width &&
+        row - n.ypos < n.height &&
+        col - n.xpos < n.width
+    );
+  
+    if (!clickedCellHasNft) {
+      setState((prevState) => ({
+        ...prevState,
+        isSelecting: true,
+        startCell: { row, col },
+        selectedCells: [{ row, col }],
+      }));
+    }
+  };  
+  
   const handleMouseUp = (): void => {
     if (isSelecting) {
       setState((prevState) => ({
