@@ -218,9 +218,9 @@ const Matrix: React.FC = () => {
     }));
   };
 
-  if(isLoading) {
-    return <CircularProgress size={60} sx={{padding: 8}} />
-  }
+  // if(isLoading) {
+  //   return <CircularProgress size={60} sx={{padding: 8}} />
+  // }
 
   return (
     <div style={{ width: 'auto', height: '100vh', cursor: 'cell', padding: 'inherit', display: 'inline' }}>

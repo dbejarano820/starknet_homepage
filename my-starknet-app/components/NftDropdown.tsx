@@ -4,34 +4,11 @@ import { useContractRead } from '@starknet-react/core';
 import { EditNFTModal } from './EditNftModal';
 import { StarknetHomepageNFT } from './types';
 import { STARKNET_HOMEPAGE_ERC721_ADDRESS } from '../constants';
-import starknetHomepageABI from '../abi/homepage.json'
+import starknetHomepageABI from '../abi/homepage.json';
 import { deserializeTokenObject } from '../utils/deserializeTokenObject';
 
-const NftDropdown = ({account} : {account: string | undefined}) => {
-  const [ownNfts, setOwnNfts] = useState<StarknetHomepageNFT[]>([])
-
-  const readTx = useMemo(() => {
-    const tx = {
-      address: STARKNET_HOMEPAGE_ERC721_ADDRESS,
-      functionName: 'getTokensByOwner',
-      abi: starknetHomepageABI,
-      args: [ account ],
-    };
-    return tx;
-  }, [account]);
-
-
-  const { data, isLoading } = useContractRead(readTx);
-  
-  useEffect(() => {
-    if (!isLoading) {
-      const arr = data?.map((nft) => {
-        return deserializeTokenObject(nft);
-      });
-      setOwnNfts(arr || []);
-    }
-  }, [data, isLoading]);
-
+const NftDropdown = ({ account }: { account: string | undefined }) => {
+  const [ownNfts, setOwnNfts] = useState<StarknetHomepageNFT[]>([]);
   const [selectedNFT, setSelectedNFT] = useState<StarknetHomepageNFT>({
     token_id: 0,
     xpos: 1,
@@ -42,6 +19,27 @@ const NftDropdown = ({account} : {account: string | undefined}) => {
     link: '',
   });
   const [modalOpen, setModalOpen] = useState(false);
+
+  const readTx = useMemo(() => {
+    const tx = {
+      address: STARKNET_HOMEPAGE_ERC721_ADDRESS,
+      functionName: 'getTokensByOwner',
+      abi: starknetHomepageABI,
+      args: [account],
+    };
+    return tx;
+  }, [account]);
+
+  const { data, isLoading } = useContractRead(readTx);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const arr = data?.map((nft) => {
+        return deserializeTokenObject(nft);
+      });
+      setOwnNfts(arr || []);
+    }
+  }, [data, isLoading]);
 
   const handleNFTSelect = (nft: StarknetHomepageNFT) => {
     setSelectedNFT(nft);
@@ -63,19 +61,23 @@ const NftDropdown = ({account} : {account: string | undefined}) => {
 
   return (
     <div>
-      <FormControl fullWidth >
-        <InputLabel id="dropdown">Edit your NFTs</InputLabel>
-        <Select  id="dropdown" label="Edit your NFTs" value={selectedNFT} onChange={() => {}}>
-          <MenuItem value="">
-            <em>Select an NFT</em>
-          </MenuItem>
-          {ownNfts?.map((nft, index) => (
-            <MenuItem key={index} value={nft.token_id} onClick={() => handleNFTSelect(nft)}>
-              Origin: {nft.xpos},{nft.ypos} --- Image: {nft.img}
+      {account ? (
+        <FormControl fullWidth>
+          <InputLabel id="dropdown">Edit your NFTs</InputLabel>
+          <Select id="dropdown" label="Edit your NFTs" value={selectedNFT} onChange={() => {}}>
+            <MenuItem value="">
+              <em>Select an NFT</em>
             </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+            {ownNfts?.map((nft, index) => (
+              <MenuItem key={index} value={nft.token_id} onClick={() => handleNFTSelect(nft)}>
+                Origin: {nft.xpos},{nft.ypos} --- Image: {nft.img}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      ) : (
+        <div></div>
+      )}
       <EditNFTModal open={modalOpen} onClose={handleCloseModal} nft={selectedNFT} />
     </div>
   );
