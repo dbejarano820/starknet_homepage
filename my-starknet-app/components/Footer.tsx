@@ -10,7 +10,7 @@ const Footer = () => {
         <Typography variant="body1">This project pays homage to the infamous <a href='http://www.milliondollarhomepage.com/'>Million Dollar Homepage.</a> </Typography>
       </Grid>
       <Grid item>
-        <Typography variant="body1" textAlign='center'>The images on this platform are not moderated and are presented in a true decentralized fashion, meaning there is no content filter. As a result, the responsibility for the images lies solely with the NFTs' respective owners.</Typography>
+        <Typography variant="body1" textAlign='center'>The images on this platform are not moderated and are presented in a true decentralized fashion, meaning there is no content filter. As a result, the responsibility for the images lies solely with the NFTs respective owners.</Typography>
       </Grid>
       <Grid item>
         <Typography variant="body2">
