@@ -46,10 +46,12 @@ const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, hand
         backgroundSize: isNftCell ? `${nft.width * 10}px ${nft.height * 10}px` : 'auto',
         backgroundPosition: isNftCell ? `-${(col - nft.xpos) * 10}px -${(row - nft.ypos) * 10}px` : 'none',
         zIndex: isNftCell ? 1 : 0,
+        cursor: isNftCell ? 'pointer' : 'crosshair',
       }}
       onMouseDown={() => handleMouseDown(row, col)}
       onMouseEnter={() => handleMouseEnter(row, col)}
       onClick={handleCellClick}
+    //  title={nft.title} once this is added
     ></div>
   );
 };
