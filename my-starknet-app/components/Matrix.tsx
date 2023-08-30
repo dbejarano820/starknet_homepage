@@ -28,25 +28,27 @@ interface MatrixState {
 }
 
 const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, handleMouseEnter, nft }) => {
-  const isNftCell =
-    nft && row >= nft.ypos && row < nft.ypos + nft.height && col >= nft.xpos && col < nft.xpos + nft.width;
+  const isNftCell = !!nft;
 
   return (
     <div
       style={{
         width: '10px',
         height: '10px',
+        border: isNftCell ? 'none' : '1px solid black',
+        boxSizing: 'border-box', 
         backgroundColor: isSelected ? '#0C0D4E' : isNftCell ? 'transparent' : '#f0f0f0',
-        border: '1px solid black',
         backgroundImage: isNftCell ? `url(${nft.img})` : 'none',
         backgroundSize: isNftCell ? `${nft.width * 10}px ${nft.height * 10}px` : 'auto',
         backgroundPosition: isNftCell ? `-${(col - nft.xpos) * 10}px -${(row - nft.ypos) * 10}px` : 'none',
+        zIndex: isNftCell ? 1 : 0,
       }}
       onMouseDown={() => handleMouseDown(row, col)}
       onMouseEnter={() => handleMouseEnter(row, col)}
     ></div>
   );
 };
+
 
 
 
@@ -95,7 +97,7 @@ const Matrix: React.FC = () => {
     const tx = {
       contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
       entrypoint: 'mint',
-      calldata: [startCell.row, startCell.col, width, height, splitNewImage, splitNewLink]
+      calldata: [startCell.col, startCell.row, width, height, splitNewImage, splitNewLink]
     };
     return [tx];
   }, [startCell, newImage, newLink, width, height]);
@@ -109,7 +111,7 @@ const Matrix: React.FC = () => {
       calldata: [STARKNET_HOMEPAGE_ERC721_ADDRESS, `${price}`, '0'],
     };
     return [tx];
-  }, [selectedCells]);
+  }, [mintPrice]);
 
   const { writeAsync: writeApprove } = useContractWrite({ calls: approveCall });
 
@@ -217,8 +219,13 @@ const Matrix: React.FC = () => {
           Array.from({ length: totalCols }).map((_, col) => {
             const nft = allNfts.find(
               (n) => {
-                const evaluation = row >= n.ypos && row < n.ypos + n.height && col >= n.xpos && col < n.xpos + n.width
-                console.log(`Row: ${row}, Col: ${col}, NFT: ${evaluation}`);
+                const evaluation =
+                  row >= n.ypos &&
+                  row < n.ypos + n.height &&
+                  col >= n.xpos &&
+                  col < n.xpos + n.width &&
+                  row - n.ypos < n.height &&
+                  col - n.xpos < n.width;
                 return evaluation;
               }
             );
@@ -231,7 +238,7 @@ const Matrix: React.FC = () => {
                 isSelected={isSelected}
                 handleMouseDown={handleMouseDown}
                 handleMouseEnter={handleMouseEnter}
-                nft={nft} // Pass the whole NFT object to the Cell component
+                nft={nft}
               />
             );
           })
