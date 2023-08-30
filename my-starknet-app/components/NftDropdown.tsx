@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel, Box } from '@mui/material';
 import { useContractRead } from '@starknet-react/core';
 import { EditNFTModal } from './EditNftModal';
 import { StarknetHomepageNFT } from './types';
@@ -60,7 +60,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
   };
 
   return (
-    <div>
+    <Box maxWidth="1000px">
       {account ? (
         <FormControl fullWidth>
           <InputLabel id="dropdown">Edit your NFTs</InputLabel>
@@ -70,7 +70,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
             </MenuItem>
             {ownNfts?.map((nft, index) => (
               <MenuItem key={index} value={nft.token_id} onClick={() => handleNFTSelect(nft)}>
-                Origin: {nft.xpos},{nft.ypos} --- Image: {nft.img}
+                TokenID {nft.token_id} Origin: {nft.xpos},{nft.ypos} --- Link: {nft.link}
               </MenuItem>
             ))}
           </Select>
@@ -79,7 +79,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
         <div></div>
       )}
       <EditNFTModal open={modalOpen} onClose={handleCloseModal} nft={selectedNFT} />
-    </div>
+    </Box>
   );
 };
 
