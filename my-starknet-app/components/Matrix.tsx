@@ -68,8 +68,8 @@ const Matrix: React.FC = () => {
     selectedCells: [],
     showPopup: false,
     mintPrice: undefined,
-    width: 0,
-    height: 0,
+    width: 1,
+    height: 1,
   });
   const [isMintLoading, setIsMintLoading] = useState(false);
   const [newLink, setNewLink] = useState('');
