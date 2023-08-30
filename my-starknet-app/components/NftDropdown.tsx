@@ -71,7 +71,7 @@ const NftDropdown = ({account} : {account: string | undefined}) => {
           </MenuItem>
           {ownNfts?.map((nft, index) => (
             <MenuItem key={index} value={nft.token_id} onClick={() => handleNFTSelect(nft)}>
-              {nft.img}
+              Origin: {nft.xpos},{nft.ypos} --- Image: {nft.img}
             </MenuItem>
           ))}
         </Select>

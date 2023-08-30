@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Modal, Typography, TextField, Button, CircularProgress,  } from '@mui/material';
 import { StarknetHomepageNFT } from './types';
 import { useContractWrite } from '@starknet-react/core'
+import { shortString } from 'starknet';
 import { STARKNET_HOMEPAGE_ERC721_ADDRESS } from '../constants';
 
 interface NFTModalProps {
@@ -18,12 +19,14 @@ export const EditNFTModal = ({ open, onClose, nft } : NFTModalProps) => {
 
   const calls = useMemo(() => {
     const txs = [];
+    const splitNewImage: string[] = shortString.splitLongString(newImage);
+    const splitNewLink: string[] = shortString.splitLongString(newLink);
   
     if (newImage !== '' && nft) {
       const tx1 = {
         contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
         entrypoint: 'setTokenImg',
-        calldata: [nft.token_id, newImage],
+        calldata: [nft.token_id, 0, splitNewImage],
       };
       txs.push(tx1);
     }
@@ -32,7 +35,7 @@ export const EditNFTModal = ({ open, onClose, nft } : NFTModalProps) => {
       const tx2 = {
         contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
         entrypoint: 'setTokenLink',
-        calldata: [nft.token_id, newLink],
+        calldata: [nft.token_id, 0, splitNewLink],
       };
       txs.push(tx2);
     }
