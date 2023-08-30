@@ -118,7 +118,7 @@ const Matrix: React.FC = () => {
       calldata: [STARKNET_HOMEPAGE_ERC721_ADDRESS, `${price}`, '0'],
     };
     return [tx];
-  }, [mintPrice]);
+  }, [selectedCells.length]);
 
   const { writeAsync: writeApprove } = useContractWrite({ calls: approveCall });
 

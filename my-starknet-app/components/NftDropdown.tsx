@@ -62,14 +62,14 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
   return (
     <Box maxWidth="1000px">
       {account ? (
-        <FormControl fullWidth>
+        <FormControl fullWidth >
           <InputLabel id="dropdown">Edit your NFTs</InputLabel>
-          <Select id="dropdown" label="Edit your NFTs" value={selectedNFT} onChange={() => {}}>
+          <Select id="dropdown" label="Edit your NFTs" value={selectedNFT} sx={{maxWidth: "1000px"}} onChange={() => {}}>
             <MenuItem value="">
               <em>Select an NFT</em>
             </MenuItem>
             {ownNfts?.map((nft, index) => (
-              <MenuItem key={index} value={nft.token_id} onClick={() => handleNFTSelect(nft)}>
+              <MenuItem key={index} value={nft.token_id} onClick={() => handleNFTSelect(nft)} sx={{maxWidth: "1000px"}}>
                 TokenID {nft.token_id} Origin: {nft.xpos},{nft.ypos} --- Link: {nft.link}
               </MenuItem>
             ))}
