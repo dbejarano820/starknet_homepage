@@ -29,7 +29,7 @@ export default function Home() {
             <Grid container alignItems="center" gap={1}>
               <Typography  variant='subtitle1'>1,000,000 pixels</Typography>
               <Divider orientation="vertical" sx={{borderColor: "black"}} flexItem />
-              <Typography  variant='subtitle1'>0.0001 ETH per pixel</Typography>
+              <Typography  variant='subtitle1'>0.00001 ETH per pixel</Typography>
               <Divider orientation="vertical" flexItem sx={{borderColor: "black"}} />
               <Typography  variant='subtitle1'>Own a piece of Starknet History</Typography>
               <WalletBar account={address}/>

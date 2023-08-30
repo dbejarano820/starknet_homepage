@@ -7,7 +7,7 @@ import { StarknetHomepageNFT } from './types';
 import starknetHomepageABI from '../abi/homepage.json'
 import { deserializeTokenObject } from '../utils/deserializeTokenObject';
 
-const CELL_MINT_PRICE = 0.01;
+const CELL_MINT_PRICE = 0.001;
 interface CellProps {
   row: number;
   col: number;
@@ -128,7 +128,7 @@ const Matrix: React.FC = () => {
       calldata: [startCell.col, startCell.row, width, height, splitNewImage, splitNewLink]
     };
 
-    const price = selectedCells.length * 10000000000000000;
+    const price = selectedCells.length * 1000000000000000;
 
     const tx1 = {
       contractAddress: ERC_20_ADDRESS,
@@ -212,6 +212,7 @@ const Matrix: React.FC = () => {
   };
 
   const handleClosePopup = (): void => {
+    setIsMintLoading(false);
     setState((prevState) => ({
       ...prevState,
       showPopup: false,
