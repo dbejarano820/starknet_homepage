@@ -71,9 +71,7 @@ const Matrix: React.FC = () => {
     width: 0,
     height: 0,
   });
-  const [isApproveLoading, setIsApproveLoading] = useState(false);
   const [isMintLoading, setIsMintLoading] = useState(false);
-  const [isApproved, setIsApproved] = useState(false);
   const [newLink, setNewLink] = useState('');
   const [newImage, setNewImage] = useState('');
 
@@ -120,9 +118,27 @@ const Matrix: React.FC = () => {
     return [tx];
   }, [selectedCells.length]);
 
-  const { writeAsync: writeApprove } = useContractWrite({ calls: approveCall });
+  const calls = useMemo(() => {
+    const splitNewImage: string[] = shortString.splitLongString(newImage);
+    const splitNewLink: string[] = shortString.splitLongString(newLink);
 
-  const { writeAsync: writeMint } = useContractWrite({ calls: mintCall });
+    const tx2 = {
+      contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
+      entrypoint: 'mint',
+      calldata: [startCell.col, startCell.row, width, height, splitNewImage, splitNewLink]
+    };
+
+    const price = selectedCells.length * 10000000000000000;
+
+    const tx1 = {
+      contractAddress: ERC_20_ADDRESS,
+      entrypoint: 'approve',
+      calldata: [STARKNET_HOMEPAGE_ERC721_ADDRESS, `${price}`, '0'],
+    };
+    return [tx1, tx2];
+  }, [startCell, newImage, newLink, width, height, selectedCells.length]);
+
+  const { writeAsync: writeMulti } = useContractWrite({ calls });
 
   const handleMouseDown = (row: number, col: number): void => {
     // Check if the clicked cell contains an NFT image
@@ -179,24 +195,10 @@ const Matrix: React.FC = () => {
     }
   };
 
-  const handleApproveClick = async (): Promise<void> => {
-    setIsApproveLoading(true);
-
-    try {
-      await writeApprove();
-      setIsApproved(true);
-      setIsApproveLoading(false);
-    } catch (error) {
-      console.error('Error approving transaction:', error);
-      setIsApproveLoading(false);
-    }
-  };
-
   const handleMintClick = async (): Promise<void> => {
     setIsMintLoading(true);
-
     try {
-      await writeMint();
+      await writeMulti();
       setIsMintLoading(false);
       setState((prevState) => ({
         ...prevState,
@@ -205,11 +207,9 @@ const Matrix: React.FC = () => {
         mintPrice: undefined,
       }));
     } catch (error) {
-      console.error('Error minting transaction:', error);
-      setIsMintLoading(false);
+      console.error('Error approving transaction:', error);
     }
   };
-
 
   const handleClosePopup = (): void => {
     setState((prevState) => ({
@@ -289,15 +289,10 @@ const Matrix: React.FC = () => {
           Price: {mintPrice} ETH + fees for {selectedCells.length * 100} pixels
         </Typography>
         <Grid container justifyContent='space-around'>
-        {isApproveLoading ? (
-          <CircularProgress size={24} />
-        ) : (
-          <Button onClick={handleApproveClick} disabled={isApproved}>Approve</Button>
-        )}
         {isMintLoading ? (
           <CircularProgress size={24} />
         ) : (
-          <Button onClick={handleMintClick} disabled={!isApproved}>
+          <Button onClick={handleMintClick}>
             Mint
           </Button>
         )}
@@ -308,7 +303,6 @@ const Matrix: React.FC = () => {
           onChange={(e) => setNewLink(e.target.value)}
           fullWidth
           margin="normal"
-          disabled={!isApproved}
         />
         <TextField
           label={'Image for token'}
@@ -316,7 +310,6 @@ const Matrix: React.FC = () => {
           onChange={(e) => setNewImage(e.target.value)}
           fullWidth
           margin="normal"
-          disabled={!isApproved}
         />
       </Box>
     </Modal>
