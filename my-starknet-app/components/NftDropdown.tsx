@@ -25,7 +25,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
       address: STARKNET_HOMEPAGE_ERC721_ADDRESS,
       functionName: 'getTokensByOwner',
       abi: starknetHomepageABI,
-      args: [account],
+      args: [account || '0x0000000'],
     };
     return tx;
   }, [account]);
