@@ -95,29 +95,6 @@ const Matrix: React.FC = () => {
     }
   }, [data, isLoading]);
 
-  const mintCall = useMemo(() => {
-    const splitNewImage: string[] = shortString.splitLongString(newImage);
-    const splitNewLink: string[] = shortString.splitLongString(newLink);
-
-    const tx = {
-      contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
-      entrypoint: 'mint',
-      calldata: [startCell.col, startCell.row, width, height, splitNewImage, splitNewLink]
-    };
-    return [tx];
-  }, [startCell, newImage, newLink, width, height]);
-
-  const approveCall = useMemo(() => {
-    const price = selectedCells.length * 10000000000000000;
-
-    const tx = {
-      contractAddress: ERC_20_ADDRESS,
-      entrypoint: 'approve',
-      calldata: [STARKNET_HOMEPAGE_ERC721_ADDRESS, `${price}`, '0'],
-    };
-    return [tx];
-  }, [selectedCells.length]);
-
   const calls = useMemo(() => {
     const splitNewImage: string[] = shortString.splitLongString(newImage);
     const splitNewLink: string[] = shortString.splitLongString(newLink);
