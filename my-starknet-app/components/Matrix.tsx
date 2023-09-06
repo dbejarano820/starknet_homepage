@@ -77,7 +77,7 @@ const Matrix: React.FC = () => {
 
   const { isSelecting, startCell, selectedCells, mintPrice, showPopup, width, height } = state;
 
-  const [allNfts, setAllNfts] = useState<StarknetHomepageNFT[]>([])
+  const [allNfts, setAllNfts] = useState<any[]>([])
 
   const { data, isLoading } = useContractRead({
     address: STARKNET_HOMEPAGE_ERC721_ADDRESS,
@@ -117,19 +117,32 @@ const Matrix: React.FC = () => {
 
   const { writeAsync: writeMulti } = useContractWrite({ calls });
 
+  const nftFlags = useMemo(() => {
+    const flags = Array.from({ length: totalRows }, () => Array(totalCols).fill(false));
+  
+    allNfts.forEach((nft) => {
+      const xpos = parseInt(nft.xpos, 10);
+      const ypos = parseInt(nft.ypos, 10);
+      const width = parseInt(nft.width, 10);
+      const height = parseInt(nft.height, 10);
+  
+      for (let r = ypos; r < ypos + height; r++) {
+        for (let c = xpos; c < xpos + width; c++) {
+          if (r < totalRows && c < totalCols) {
+            flags[r][c] = true;
+          } else {
+            console.log(`Index out of bounds: ${r}, ${c}`);
+          }
+        }
+      }
+    });
+  
+    return flags;
+  }, [allNfts, isLoading]);
+  
   const handleMouseDown = (row: number, col: number): void => {
     // Check if the clicked cell contains an NFT image
-    const clickedCellHasNft = allNfts.some(
-      (n) =>
-        row >= n.ypos &&
-        row < n.ypos + n.height &&
-        col >= n.xpos &&
-        col < n.xpos + n.width &&
-        row - n.ypos < n.height &&
-        col - n.xpos < n.width
-    );
-  
-    if (!clickedCellHasNft) {
+    if (!nftFlags[row][col]) {
       setState((prevState) => ({
         ...prevState,
         isSelecting: true,
@@ -140,6 +153,20 @@ const Matrix: React.FC = () => {
   };  
   
   const handleMouseUp = (): void => {
+    // Check if any selected cell already has an NFT
+    const isOverlappingWithNFT = selectedCells.some(cell => nftFlags[cell.row][cell.col]);
+
+    if (isOverlappingWithNFT) {
+      alert('One or more selected cells already have an NFT associated with them. Please select a different area.');
+      setState((prevState) => ({
+        ...prevState,
+        isSelecting: false,
+        showPopup: false,
+        selectedCells: []
+      }));
+      return;
+    }
+
     if (isSelecting) {
       setState((prevState) => ({
         ...prevState,
@@ -232,6 +259,7 @@ const Matrix: React.FC = () => {
               }
             );
             const isSelected = selectedCells.some((cell) => cell.row === row && cell.col === col);
+            const isNftCell = nftFlags[row][col];
             return (
               <Cell
                 key={`${row},${col}`}
@@ -240,7 +268,7 @@ const Matrix: React.FC = () => {
                 isSelected={isSelected}
                 handleMouseDown={handleMouseDown}
                 handleMouseEnter={handleMouseEnter}
-                nft={nft}
+                nft={isNftCell ? nft : undefined}
               />
             );
           })
