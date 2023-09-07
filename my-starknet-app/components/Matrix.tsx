@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useContractWrite, useContractRead } from '@starknet-react/core';
 import { shortString } from "starknet";
-import { CircularProgress, TextField, Grid, Typography, Box, Modal, Button } from '@mui/material';
+import { CircularProgress, TextField, Grid, Typography, Box, Modal, Button, Tooltip } from '@mui/material';
 import { ERC_20_ADDRESS, STARKNET_HOMEPAGE_ERC721_ADDRESS } from '../constants';
 import { StarknetHomepageNFT } from './types';
 import starknetHomepageABI from '../abi/homepage.json'
@@ -35,6 +35,7 @@ const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, hand
     }
   };
   return (
+    <Tooltip title={nft?.link}>
     <div
       style={{
         width: '10px',
@@ -53,6 +54,7 @@ const Cell: React.FC<CellProps> = ({ row, col, isSelected, handleMouseDown, hand
       onClick={handleCellClick}
     //  title={nft.title} once this is added
     ></div>
+    </Tooltip>
   );
 };
 
