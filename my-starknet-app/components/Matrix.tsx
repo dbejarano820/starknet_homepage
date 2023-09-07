@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import _ from "lodash";
 import { useContractWrite, useContractRead } from "@starknet-react/core";
 import { shortString } from "starknet";
 import {
@@ -50,37 +51,44 @@ const Cell: React.FC<CellProps> = ({
       window.open(nft.link, "_blank"); // Open the link in a new tab
     }
   };
-  return (
-    <Tooltip title={nft?.link}>
-      <div
-        style={{
-          width: "10px",
-          height: "10px",
-          border: isNftCell ? "none" : "1px solid black",
-          boxSizing: "border-box",
-          backgroundColor: isSelected
-            ? "#0C0D4E"
-            : isNftCell
-            ? "transparent"
-            : "#f0f0f0",
-          backgroundImage: isNftCell ? `url(${nft.img})` : "none",
-          backgroundSize: isNftCell
-            ? `${nft.width * 10}px ${nft.height * 10}px`
-            : "auto",
-          backgroundPosition: isNftCell
-            ? `-${(col - nft.xpos) * 10}px -${(row - nft.ypos) * 10}px`
-            : "none",
-          zIndex: isNftCell ? 1 : 0,
-          cursor: isNftCell ? "pointer" : "crosshair",
-        }}
-        onMouseDown={() => handleMouseDown(row, col)}
-        onMouseEnter={() => handleMouseEnter(row, col)}
-        onClick={handleCellClick}
-        //  title={nft.title} once this is added
-      ></div>
-    </Tooltip>
+
+  const cellContent = (
+    <div
+      style={{
+        width: "10px",
+        height: "10px",
+        border: isNftCell ? "none" : "1px solid black",
+        boxSizing: "border-box",
+        backgroundColor: isSelected
+          ? "#0C0D4E"
+          : isNftCell
+          ? "transparent"
+          : "#f0f0f0",
+        backgroundImage: isNftCell ? `url(${nft.img})` : "none",
+        backgroundSize: isNftCell
+          ? `${nft.width * 10}px ${nft.height * 10}px`
+          : "auto",
+        backgroundPosition: isNftCell
+          ? `-${(col - nft.xpos) * 10}px -${(row - nft.ypos) * 10}px`
+          : "none",
+        zIndex: isNftCell ? 1 : 0,
+        cursor: isNftCell ? "pointer" : "crosshair",
+      }}
+      onMouseDown={() => handleMouseDown(row, col)}
+      onMouseEnter={() => handleMouseEnter(row, col)}
+      onClick={handleCellClick}
+      //  title={nft.title} once this is added
+    ></div>
+  );
+
+  return !isNftCell ? (
+    cellContent
+  ) : (
+    <Tooltip title={nft?.link}>{cellContent}</Tooltip>
   );
 };
+
+const MemoizedCell = React.memo(Cell);
 
 const Matrix: React.FC = () => {
   const totalRows = 100;
@@ -180,19 +188,22 @@ const Matrix: React.FC = () => {
     return flags;
   }, [allNfts, isLoading]);
 
-  const handleMouseDown = (row: number, col: number): void => {
-    // Check if the clicked cell contains an NFT image
-    if (!nftFlags[row][col]) {
-      setState((prevState) => ({
-        ...prevState,
-        isSelecting: true,
-        startCell: { row, col },
-        selectedCells: [{ row, col }],
-      }));
-    }
-  };
+  const handleMouseDown = useCallback(
+    (row: number, col: number) => {
+      // Check if the clicked cell contains an NFT image
+      if (!nftFlags[row][col]) {
+        setState((prevState) => ({
+          ...prevState,
+          isSelecting: true,
+          startCell: { row, col },
+          selectedCells: [{ row, col }],
+        }));
+      }
+    },
+    [nftFlags],
+  );
 
-  const handleMouseUp = (): void => {
+  const handleMouseUp = useCallback(() => {
     // Check if any selected cell already has an NFT
     const isOverlappingWithNFT = selectedCells.some(
       (cell) => nftFlags[cell.row][cell.col],
@@ -219,37 +230,46 @@ const Matrix: React.FC = () => {
         mintPrice: selectedCells.length * CELL_MINT_PRICE,
       }));
     }
-  };
+  }, [selectedCells, isSelecting, nftFlags]);
 
-  const handleMouseEnter = (row: number, col: number): void => {
-    if (isSelecting) {
-      const newSelectedCells: any[] = [];
-      const numRows = Math.abs(row - startCell.row) + 1;
-      const numCols = Math.abs(col - startCell.col) + 1;
+  const handleMouseEnter = useCallback(
+    (row: number, col: number) => {
+      if (isSelecting) {
+        const newSelectedCells: any[] = [];
+        const numRows = Math.abs(row - startCell.row) + 1;
+        const numCols = Math.abs(col - startCell.col) + 1;
 
-      for (
-        let r = Math.min(startCell.row, row);
-        r <= Math.max(startCell.row, row);
-        r++
-      ) {
         for (
-          let c = Math.min(startCell.col, col);
-          c <= Math.max(startCell.col, col);
-          c++
+          let r = Math.min(startCell.row, row);
+          r <= Math.max(startCell.row, row);
+          r++
         ) {
-          newSelectedCells.push({ row: r, col: c });
+          for (
+            let c = Math.min(startCell.col, col);
+            c <= Math.max(startCell.col, col);
+            c++
+          ) {
+            newSelectedCells.push({ row: r, col: c });
+          }
         }
-      }
 
-      setState((prevState) => ({
-        ...prevState,
-        selectedCells: newSelectedCells,
-        mintPrice: newSelectedCells.length * CELL_MINT_PRICE,
-        width: numCols,
-        height: numRows,
-      }));
-    }
-  };
+        setState((prevState) => ({
+          ...prevState,
+          selectedCells: newSelectedCells,
+          mintPrice: newSelectedCells.length * CELL_MINT_PRICE,
+          width: numCols,
+          height: numRows,
+        }));
+      }
+    },
+    [isSelecting, startCell],
+  );
+
+  // Throttling handleMouseEnter using lodash
+  const handleMouseEnterThrottled = useCallback(
+    _.throttle(handleMouseEnter, 20),
+    [handleMouseEnter],
+  );
 
   const handleMintClick = async (): Promise<void> => {
     setIsMintLoading(true);
@@ -328,13 +348,13 @@ const Matrix: React.FC = () => {
             );
             const isNftCell = nftFlags[row][col];
             return (
-              <Cell
+              <MemoizedCell
                 key={`${row},${col}`}
                 row={row}
                 col={col}
                 isSelected={isSelected}
                 handleMouseDown={handleMouseDown}
-                handleMouseEnter={handleMouseEnter}
+                handleMouseEnter={handleMouseEnterThrottled}
                 nft={isNftCell ? nft : undefined}
               />
             );

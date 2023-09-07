@@ -67,7 +67,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
           <Select
             id="dropdown"
             label="Edit your NFTs"
-            value={selectedNFT}
+            value={''}
             sx={{ maxWidth: "1000px" }}
             onChange={() => {}}
           >
