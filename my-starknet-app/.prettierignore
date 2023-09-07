@@ -1,0 +1,12 @@
+# Ignore entire directories
+node_modules/
+.out/
+.next/
+build/
+
+# Ignore specific files
+package-lock.json
+yarn.lock
+
+# Ignore all markdown files
+*.md

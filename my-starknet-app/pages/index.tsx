@@ -1,12 +1,11 @@
-import Head from 'next/head'
-import Image from 'next/image';
-import WalletBar from '../components/WalletBar'
-import Matrix from '../components/Matrix';
-import Footer from '../components/Footer';
-import NftDropdown from '../components/NftDropdown';
-import { Container, Grid, Divider, Typography } from '@mui/material';
-import { useAccount } from '@starknet-react/core';
-
+import Head from "next/head";
+import Image from "next/image";
+import WalletBar from "../components/WalletBar";
+import Matrix from "../components/Matrix";
+import Footer from "../components/Footer";
+import NftDropdown from "../components/NftDropdown";
+import { Container, Grid, Divider, Typography } from "@mui/material";
+import { useAccount } from "@starknet-react/core";
 
 export default function Home() {
   const { address } = useAccount();
@@ -20,19 +19,34 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Container sx={{width: '1000px'}} fixed>
+        <Container sx={{ width: "1000px" }} fixed>
           <Grid container direction="column" marginBottom={1.5}>
             <Grid container direction="row" alignItems="center" gap={1}>
-              <Image src="/Starknet-Icon.png" alt="Icon" width={50} height={50}  />
-              <Typography variant='h2'>Starknet Homepage</Typography>
+              <Image
+                src="/Starknet-Icon.png"
+                alt="Icon"
+                width={50}
+                height={50}
+              />
+              <Typography variant="h2">Starknet Homepage</Typography>
             </Grid>
             <Grid container alignItems="center" gap={1}>
-              <Typography  variant='subtitle1'>1,000,000 pixels</Typography>
-              <Divider orientation="vertical" sx={{borderColor: "black"}} flexItem />
-              <Typography  variant='subtitle1'>0.00001 ETH per pixel</Typography>
-              <Divider orientation="vertical" flexItem sx={{borderColor: "black"}} />
-              <Typography  variant='subtitle1'>Own a piece of Starknet History</Typography>
-              <WalletBar account={address}/>
+              <Typography variant="subtitle1">1,000,000 pixels</Typography>
+              <Divider
+                orientation="vertical"
+                sx={{ borderColor: "black" }}
+                flexItem
+              />
+              <Typography variant="subtitle1">0.00001 ETH per pixel</Typography>
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ borderColor: "black" }}
+              />
+              <Typography variant="subtitle1">
+                Own a piece of Starknet History
+              </Typography>
+              <WalletBar account={address} />
             </Grid>
           </Grid>
           <Matrix />
@@ -41,5 +55,5 @@ export default function Home() {
         </Container>
       </main>
     </>
-  )
+  );
 }

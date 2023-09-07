@@ -1,14 +1,23 @@
-import Image from 'next/image';
-import { useAccount, useConnectors, useNetwork } from '@starknet-react/core'
-import { useMemo, useState } from 'react'
-import { DialogTitle, DialogContentText, DialogContent, DialogActions, Dialog, Button, Box, Grid } from '@mui/material';
-import { useTheme } from '@mui/material/styles'
-import { styled } from '@mui/material/styles';
+import Image from "next/image";
+import { useAccount, useConnectors, useNetwork } from "@starknet-react/core";
+import { useMemo, useState } from "react";
+import {
+  DialogTitle,
+  DialogContentText,
+  DialogContent,
+  DialogActions,
+  Dialog,
+  Button,
+  Box,
+  Grid,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
-  '&:hover': {
+  "&:hover": {
     backgroundColor: theme.palette.primary.light,
   },
 }));
@@ -17,21 +26,20 @@ const ConnectWalletButton = styled(Button)(({ theme }) => ({
   border: "1px solid",
   width: "-webkit-fill-available",
   display: "flex",
-  justifyContent: "space-between"
+  justifyContent: "space-between",
 }));
 
 const StyledBox = styled(Box)(({ theme }) => ({
-  marginLeft: 'auto',
+  marginLeft: "auto",
 }));
 
-
-function WalletConnected({ address } : { address: string }) {
-  const { disconnect } = useConnectors()
-  const { chain } = useNetwork()
+function WalletConnected({ address }: { address: string }) {
+  const { disconnect } = useConnectors();
+  const { chain } = useNetwork();
   const shortenedAddress = useMemo(() => {
-    if (!address) return ''
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }, [address])
+    if (!address) return "";
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  }, [address]);
 
   return (
     <StyledBox>
@@ -40,21 +48,21 @@ function WalletConnected({ address } : { address: string }) {
       </StyledButton>
       <span>&nbsp;Connected to {chain && chain.name}</span>
     </StyledBox>
-  )
+  );
 }
 
 function ConnectWallet() {
-  const { connectors, connect } = useConnectors()
-  const [open, setOpen] = useState(false)
-  const theme = useTheme()
+  const { connectors, connect } = useConnectors();
+  const [open, setOpen] = useState(false);
+  const theme = useTheme();
 
   const handleClickOpen = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   return (
     <StyledBox>
@@ -70,13 +78,18 @@ function ConnectWallet() {
                 <ConnectWalletButton
                   key={connector.id}
                   onClick={() => {
-                    connect(connector)
-                    handleClose()
+                    connect(connector);
+                    handleClose();
                   }}
                   sx={{ margin: theme.spacing(1) }}
                 >
                   {connector.id}
-                  <Image src={`/${connector.id}-icon.png`} alt={connector.id} width={30} height={30} />
+                  <Image
+                    src={`/${connector.id}-icon.png`}
+                    alt={connector.id}
+                    width={30}
+                    height={30}
+                  />
                 </ConnectWalletButton>
               ))}
             </Grid>
@@ -89,10 +102,13 @@ function ConnectWallet() {
         </DialogActions>
       </Dialog>
     </StyledBox>
-  )
+  );
 }
 
-export default function WalletBar({account} : {account: string | undefined}) {
-
-  return account ? <WalletConnected address={account} /> : <ConnectWallet />
+export default function WalletBar({
+  account,
+}: {
+  account: string | undefined;
+}) {
+  return account ? <WalletConnected address={account} /> : <ConnectWallet />;
 }
