@@ -93,7 +93,6 @@ mod StarknetHomepage {
     use super::{IERC20Dispatcher, IERC20DispatcherTrait};
     use super::StoreFelt252Array;
 
-
     #[derive(Drop, starknet::Store, Serde)]
     struct Cell {
         token_id: u256,
@@ -258,10 +257,12 @@ mod StarknetHomepage {
         }
 
         fn setTokenImg(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
+            assert(self.ownerOf(token_id)==get_caller_address(),'Only owner can set image.')
             self.img.write(token_id, _img);
         }
 
         fn setTokenLink(ref self: ContractState, token_id: u256, _link: Array<felt252>) {
+            assert(self.ownerOf(token_id)==get_caller_address(),'Only owner can set link.')
             self.link.write(token_id, _link);
         }
 
@@ -324,6 +325,10 @@ mod StarknetHomepage {
         fn validateMatrix(ref self: ContractState, _xpos: u8, _ypos: u8, _width: u8, _height: u8) {
             let mut y: u8 = _ypos;
             let mut x: u8 = _xpos;
+            // Validate zero size
+            assert(_width >= 0_u8, 'Invalid size');
+            assert(_height >= 0_u8, 'Invalid size');
+        
             // Validar que las posiciones no se salen de la matrix
             assert(_xpos + _width <= 100_u8, 'Minting an invalid position');
             assert(_ypos + _height <= 100_u8, 'Minting an invalid position');
