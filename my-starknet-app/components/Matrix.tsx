@@ -103,6 +103,7 @@ const Matrix: React.FC = () => {
     height: 1,
   });
   const [isMintLoading, setIsMintLoading] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
   const [newLink, setNewLink] = useState("");
   const [newImage, setNewImage] = useState("");
 
@@ -135,6 +136,7 @@ const Matrix: React.FC = () => {
   }, [data, isLoading]);
 
   const calls = useMemo(() => {
+    const splitNewTitle: string[] = shortString.splitLongString(newTitle);
     const splitNewImage: string[] = shortString.splitLongString(newImage);
     const splitNewLink: string[] = shortString.splitLongString(newLink);
 
@@ -146,6 +148,7 @@ const Matrix: React.FC = () => {
         startCell.row,
         width,
         height,
+        splitNewTitle,
         splitNewImage,
         splitNewLink,
       ],
@@ -159,7 +162,7 @@ const Matrix: React.FC = () => {
       calldata: [STARKNET_HOMEPAGE_ERC721_ADDRESS, `${price}`, "0"],
     };
     return [tx1, tx2];
-  }, [startCell, newImage, newLink, width, height, selectedCells.length]);
+  }, [startCell, newTitle, newImage, newLink, width, height, selectedCells.length]);
 
   const { writeAsync: writeMulti } = useContractWrite({ calls });
 
@@ -391,6 +394,13 @@ const Matrix: React.FC = () => {
               <Button onClick={handleMintClick}>Mint</Button>
             )}
           </Grid>
+          <TextField
+            label={"Title for token"}
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
           <TextField
             label={"Link for token"}
             value={newLink}

@@ -15,6 +15,7 @@ export const deserializeTokenObject = (tokenObject: any) => {
     ypos: tokenObject.ypos.toString(),
     width: tokenObject.width.toString(),
     height: tokenObject.height.toString(),
+    title: deserializeFeltArray(tokenObject.title),
     img: deserializeFeltArray(tokenObject.img),
     link: deserializeFeltArray(tokenObject.link),
   };

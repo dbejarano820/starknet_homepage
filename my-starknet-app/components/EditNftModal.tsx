@@ -18,6 +18,7 @@ interface NFTModalProps {
 }
 
 export const EditNFTModal = ({ open, onClose, nft }: NFTModalProps) => {
+  const [newTitle, setNewTitle] = useState("");
   const [newLink, setNewLink] = useState("");
   const [newImage, setNewImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -26,27 +27,37 @@ export const EditNFTModal = ({ open, onClose, nft }: NFTModalProps) => {
     const txs = [];
     const splitNewImage: string[] = shortString.splitLongString(newImage);
     const splitNewLink: string[] = shortString.splitLongString(newLink);
+    const splitNewTitle: string[] = shortString.splitLongString(newTitle);
 
-    if (newImage !== "" && nft) {
+    if (newTitle !== "" && nft) {
       const tx1 = {
         contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
-        entrypoint: "setTokenImg",
-        calldata: [nft.token_id, 0, splitNewImage],
+        entrypoint: "setTokenTitle",
+        calldata: [nft.token_id, 0, splitNewTitle],
       };
       txs.push(tx1);
     }
 
-    if (newLink !== "" && nft) {
+    if (newImage !== "" && nft) {
       const tx2 = {
         contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
-        entrypoint: "setTokenLink",
-        calldata: [nft.token_id, 0, splitNewLink],
+        entrypoint: "setTokenImg",
+        calldata: [nft.token_id, 0, splitNewImage],
       };
       txs.push(tx2);
     }
 
+    if (newLink !== "" && nft) {
+      const tx3 = {
+        contractAddress: STARKNET_HOMEPAGE_ERC721_ADDRESS,
+        entrypoint: "setTokenLink",
+        calldata: [nft.token_id, 0, splitNewLink],
+      };
+      txs.push(tx3);
+    }
+
     return txs;
-  }, [nft, newImage, newLink]);
+  }, [nft, newTitle, newImage, newLink]);
 
   const { writeAsync } = useContractWrite({ calls });
 
@@ -82,6 +93,13 @@ export const EditNFTModal = ({ open, onClose, nft }: NFTModalProps) => {
         }}
       >
         <Typography variant="h6">Edit SHP</Typography>
+        <TextField
+          label={nft.title}
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
         <TextField
           label={nft.link}
           value={newLink}

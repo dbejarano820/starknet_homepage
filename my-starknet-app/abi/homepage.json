@@ -3,44 +3,82 @@
     "type": "enum",
     "name": "core::bool",
     "variants": [
-      { "name": "False", "type": "()" },
-      { "name": "True", "type": "()" }
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
     ]
   },
   {
     "type": "function",
     "name": "supportsInterface",
-    "inputs": [{ "name": "interface_id", "type": "core::felt252" }],
-    "outputs": [{ "type": "core::bool" }],
+    "inputs": [
+      {
+        "name": "interface_id",
+        "type": "core::felt252"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::bool"
+      }
+    ],
     "state_mutability": "view"
   },
   {
     "type": "function",
     "name": "name",
     "inputs": [],
-    "outputs": [{ "type": "core::felt252" }],
+    "outputs": [
+      {
+        "type": "core::felt252"
+      }
+    ],
     "state_mutability": "view"
   },
   {
     "type": "function",
     "name": "symbol",
     "inputs": [],
-    "outputs": [{ "type": "core::felt252" }],
+    "outputs": [
+      {
+        "type": "core::felt252"
+      }
+    ],
     "state_mutability": "view"
   },
   {
     "type": "struct",
     "name": "core::integer::u256",
     "members": [
-      { "name": "low", "type": "core::integer::u128" },
-      { "name": "high", "type": "core::integer::u128" }
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
     ]
   },
   {
     "type": "function",
     "name": "tokenUri",
-    "inputs": [{ "name": "token_id", "type": "core::integer::u256" }],
-    "outputs": [{ "type": "core::felt252" }],
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::felt252"
+      }
+    ],
     "state_mutability": "view"
   },
   {
@@ -52,24 +90,42 @@
         "type": "core::starknet::contract_address::ContractAddress"
       }
     ],
-    "outputs": [{ "type": "core::integer::u256" }],
+    "outputs": [
+      {
+        "type": "core::integer::u256"
+      }
+    ],
     "state_mutability": "view"
   },
   {
     "type": "function",
     "name": "ownerOf",
-    "inputs": [{ "name": "token_id", "type": "core::integer::u256" }],
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
+    ],
     "outputs": [
-      { "type": "core::starknet::contract_address::ContractAddress" }
+      {
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
     ],
     "state_mutability": "view"
   },
   {
     "type": "function",
     "name": "getApproved",
-    "inputs": [{ "name": "token_id", "type": "core::integer::u256" }],
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
+    ],
     "outputs": [
-      { "type": "core::starknet::contract_address::ContractAddress" }
+      {
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
     ],
     "state_mutability": "view"
   },
@@ -86,7 +142,11 @@
         "type": "core::starknet::contract_address::ContractAddress"
       }
     ],
-    "outputs": [{ "type": "core::bool" }],
+    "outputs": [
+      {
+        "type": "core::bool"
+      }
+    ],
     "state_mutability": "view"
   },
   {
@@ -97,7 +157,10 @@
         "name": "to",
         "type": "core::starknet::contract_address::ContractAddress"
       },
-      { "name": "token_id", "type": "core::integer::u256" }
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
     ],
     "outputs": [],
     "state_mutability": "external"
@@ -110,7 +173,10 @@
         "name": "operator",
         "type": "core::starknet::contract_address::ContractAddress"
       },
-      { "name": "approved", "type": "core::bool" }
+      {
+        "name": "approved",
+        "type": "core::bool"
+      }
     ],
     "outputs": [],
     "state_mutability": "external"
@@ -127,7 +193,10 @@
         "name": "to",
         "type": "core::starknet::contract_address::ContractAddress"
       },
-      { "name": "token_id", "type": "core::integer::u256" }
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
     ],
     "outputs": [],
     "state_mutability": "external"
@@ -136,7 +205,10 @@
     "type": "struct",
     "name": "core::array::Span::<core::felt252>",
     "members": [
-      { "name": "snapshot", "type": "@core::array::Array::<core::felt252>" }
+      {
+        "name": "snapshot",
+        "type": "@core::array::Array::<core::felt252>"
+      }
     ]
   },
   {
@@ -151,8 +223,14 @@
         "name": "to",
         "type": "core::starknet::contract_address::ContractAddress"
       },
-      { "name": "token_id", "type": "core::integer::u256" },
-      { "name": "data", "type": "core::array::Span::<core::felt252>" }
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "data",
+        "type": "core::array::Span::<core::felt252>"
+      }
     ],
     "outputs": [],
     "state_mutability": "external"
@@ -161,12 +239,34 @@
     "type": "function",
     "name": "mint",
     "inputs": [
-      { "name": "_xpos", "type": "core::integer::u8" },
-      { "name": "_ypos", "type": "core::integer::u8" },
-      { "name": "_width", "type": "core::integer::u8" },
-      { "name": "_height", "type": "core::integer::u8" },
-      { "name": "_img", "type": "core::array::Array::<core::felt252>" },
-      { "name": "_link", "type": "core::array::Array::<core::felt252>" }
+      {
+        "name": "_xpos",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "_ypos",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "_width",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "_height",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "_title",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "_img",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "_link",
+        "type": "core::array::Array::<core::felt252>"
+      }
     ],
     "outputs": [],
     "state_mutability": "external"
@@ -174,7 +274,12 @@
   {
     "type": "function",
     "name": "getTokenAttributes",
-    "inputs": [{ "name": "token_id", "type": "core::integer::u256" }],
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
+    ],
     "outputs": [
       {
         "type": "(core::integer::u8, core::integer::u8, core::integer::u8, core::integer::u8)"
@@ -184,24 +289,80 @@
   },
   {
     "type": "function",
+    "name": "getTokenTitle",
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::array::Array::<core::felt252>"
+      }
+    ],
+    "state_mutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getTokenImg",
-    "inputs": [{ "name": "token_id", "type": "core::integer::u256" }],
-    "outputs": [{ "type": "core::array::Array::<core::felt252>" }],
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::array::Array::<core::felt252>"
+      }
+    ],
     "state_mutability": "view"
   },
   {
     "type": "function",
     "name": "getTokenLink",
-    "inputs": [{ "name": "token_id", "type": "core::integer::u256" }],
-    "outputs": [{ "type": "core::array::Array::<core::felt252>" }],
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::array::Array::<core::felt252>"
+      }
+    ],
     "state_mutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setTokenTitle",
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "_title",
+        "type": "core::array::Array::<core::felt252>"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
   },
   {
     "type": "function",
     "name": "setTokenImg",
     "inputs": [
-      { "name": "token_id", "type": "core::integer::u256" },
-      { "name": "_img", "type": "core::array::Array::<core::felt252>" }
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "_img",
+        "type": "core::array::Array::<core::felt252>"
+      }
     ],
     "outputs": [],
     "state_mutability": "external"
@@ -210,8 +371,14 @@
     "type": "function",
     "name": "setTokenLink",
     "inputs": [
-      { "name": "token_id", "type": "core::integer::u256" },
-      { "name": "_link", "type": "core::array::Array::<core::felt252>" }
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "_link",
+        "type": "core::array::Array::<core::felt252>"
+      }
     ],
     "outputs": [],
     "state_mutability": "external"
@@ -220,13 +387,38 @@
     "type": "struct",
     "name": "starknet_homepage_contracts::ERC721::StarknetHomepage::Cell",
     "members": [
-      { "name": "token_id", "type": "core::integer::u256" },
-      { "name": "xpos", "type": "core::integer::u8" },
-      { "name": "ypos", "type": "core::integer::u8" },
-      { "name": "width", "type": "core::integer::u8" },
-      { "name": "height", "type": "core::integer::u8" },
-      { "name": "img", "type": "core::array::Array::<core::felt252>" },
-      { "name": "link", "type": "core::array::Array::<core::felt252>" }
+      {
+        "name": "token_id",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "xpos",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "ypos",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "width",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "height",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "title",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "img",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "link",
+        "type": "core::array::Array::<core::felt252>"
+      }
     ]
   },
   {
@@ -256,7 +448,18 @@
     ],
     "state_mutability": "view"
   },
-  { "type": "constructor", "name": "constructor", "inputs": [] },
+  {
+    "type": "function",
+    "name": "withdraw",
+    "inputs": [],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "type": "constructor",
+    "name": "constructor",
+    "inputs": []
+  },
   {
     "type": "event",
     "name": "starknet_homepage_contracts::ERC721::StarknetHomepage::Event",

@@ -7,9 +7,9 @@ use result::ResultTrait;
 
 #[starknet::interface]
 trait IERC20<TContractState> {
-    fn transferFrom(
-        ref self: TContractState, sender: felt252, recipient: felt252, amount: u256
-    ) -> bool;
+    fn transferFrom(ref self: TContractState, sender: felt252, recipient: felt252, amount: u256) -> bool;
+    fn transfer(ref self: TContractState, recipient: felt252, amount: u256) -> bool;
+    fn balanceOf(self: @TContractState, account: felt252) -> u256;
 }
 
 impl StoreFelt252Array of Store<Array<felt252>> {
@@ -92,6 +92,7 @@ mod StarknetHomepage {
     use core::traits::Into;
     use super::{IERC20Dispatcher, IERC20DispatcherTrait};
     use super::StoreFelt252Array;
+    use integer::{u256_safe_divmod, u256_try_as_non_zero};
 
     #[derive(Drop, starknet::Store, Serde)]
     struct Cell {
@@ -100,6 +101,7 @@ mod StarknetHomepage {
         ypos: u8,
         width: u8,
         height: u8,
+        title: Array<felt252>,
         img: Array<felt252>,
         link: Array<felt252>,
     }
@@ -110,6 +112,7 @@ mod StarknetHomepage {
         ypos: LegacyMap::<u256, u8>,
         width: LegacyMap::<u256, u8>,
         height: LegacyMap::<u256, u8>,
+        title: LegacyMap::<u256, Array<felt252>>,
         img: LegacyMap::<u256, Array<felt252>>,
         link: LegacyMap::<u256, Array<felt252>>,
         nft_counter: u256,
@@ -205,6 +208,7 @@ mod StarknetHomepage {
             _ypos: u8,
             _width: u8,
             _height: u8,
+            _title: Array<felt252>,
             _img: Array<felt252>,
             _link: Array<felt252>,
         ) {
@@ -235,6 +239,7 @@ mod StarknetHomepage {
             self.ypos.write(token_id, _ypos);
             self.width.write(token_id, _width);
             self.height.write(token_id, _height);
+            self.title.write(token_id, _title);
             self.img.write(token_id, _img);
             self.link.write(token_id, _link);
             self.nft_counter.write(token_id + 1);
@@ -248,12 +253,21 @@ mod StarknetHomepage {
             (xpos, ypos, width, height)
         }
 
+        fn getTokenTitle(self: @ContractState, token_id: u256) -> Array<felt252> {
+            self.title.read(token_id)
+        }
+
         fn getTokenImg(self: @ContractState, token_id: u256) -> Array<felt252> {
             self.img.read(token_id)
         }
 
         fn getTokenLink(self: @ContractState, token_id: u256) -> Array<felt252> {
             self.link.read(token_id)
+        }
+
+        fn setTokenTitle(ref self: ContractState, token_id: u256, _title: Array<felt252>) {
+            assert(self.ownerOf(token_id)==get_caller_address(),'Only owner can set image.');
+            self.title.write(token_id, _title);
         }
 
         fn setTokenImg(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
@@ -283,6 +297,7 @@ mod StarknetHomepage {
                                 ypos: self.ypos.read(i),
                                 width: self.width.read(i),
                                 height: self.height.read(i),
+                                title: self.title.read(i),
                                 img: self.img.read(i),
                                 link: self.link.read(i)
                             }
@@ -309,6 +324,7 @@ mod StarknetHomepage {
                             ypos: self.ypos.read(i),
                             width: self.width.read(i),
                             height: self.height.read(i),
+                            title: self.title.read(i),
                             img: self.img.read(i),
                             link: self.link.read(i)
                         }
@@ -316,6 +332,39 @@ mod StarknetHomepage {
                 i = i + 1_u256;
             };
             return (cell);
+        }
+
+        fn withdraw(ref self: ContractState) {
+            let eth_l2_address: ContractAddress =
+                contract_address_const::<0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7>();
+
+            //TODO: Set with real addresses
+            let address1: ContractAddress =
+                contract_address_const::<0x101356c264081a17e120655aa917f6fd372961315ff565d41417d66746495b3>();
+
+            let address2: ContractAddress =
+                contract_address_const::<0x039618efb43fb60252d7804bc8cbce49863c4eab0c8f9b53dd8a53f15747889d>();
+
+            // Get current balance and calculate percentages
+            let current_balance: u256 = IERC20Dispatcher { contract_address: eth_l2_address }
+                .balanceOf(
+                    contract_address_to_felt252(get_contract_address())
+                );
+            let (pct70,r1,_) = u256_safe_divmod(current_balance*70,u256_try_as_non_zero(100_u256).unwrap());
+            let (pct30,r2,_) = u256_safe_divmod(current_balance*30,u256_try_as_non_zero(100_u256).unwrap());
+
+            // Transfer amounts
+            IERC20Dispatcher { contract_address: eth_l2_address }
+                .transfer(
+                    contract_address_to_felt252(address1),
+                    pct70
+                );
+
+            IERC20Dispatcher { contract_address: eth_l2_address }
+                .transfer(
+                    contract_address_to_felt252(address2),
+                    pct30
+                );
         }
     }
 

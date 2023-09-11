@@ -4,6 +4,7 @@ export type StarknetHomepageNFT = {
   ypos: number;
   width: number;
   height: number;
+  title: string;
   img: string;
   link: string;
 };

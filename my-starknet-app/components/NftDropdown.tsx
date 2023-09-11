@@ -15,6 +15,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
     ypos: 1,
     width: 1,
     height: 1,
+    title: "",
     img: "",
     link: "",
   });
@@ -53,6 +54,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
       ypos: 1,
       width: 1,
       height: 1,
+      title: "",
       img: "",
       link: "",
     });
@@ -81,8 +83,7 @@ const NftDropdown = ({ account }: { account: string | undefined }) => {
                 onClick={() => handleNFTSelect(nft)}
                 sx={{ maxWidth: "1000px" }}
               >
-                TokenID {nft.token_id} Origin: {nft.xpos},{nft.ypos} --- Link:{" "}
-                {nft.link}
+                {nft.title} (TokenID {nft.token_id} Origin: {nft.xpos},{nft.ypos} --- Link:{" "} {nft.link} )
               </MenuItem>
             ))}
           </Select>
