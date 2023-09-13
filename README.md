@@ -14,8 +14,3 @@ Just as the Million Dollar Homepage left a mark on the early internet, Starknet 
 
 ## Showcase
 
-
-## Road to Mainnet
-
-
-# Homepage V2
