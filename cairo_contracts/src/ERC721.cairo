@@ -10,6 +10,8 @@ trait IERC20<TContractState> {
     fn transferFrom(
         ref self: TContractState, sender: felt252, recipient: felt252, amount: u256
     ) -> bool;
+    fn balanceOf(self: @TContractState, account: felt252) -> u256;
+    fn transfer(ref self: TContractState, recipient: felt252, amount: u256) -> bool;
 }
 
 impl StoreFelt252Array of Store<Array<felt252>> {
@@ -90,6 +92,7 @@ mod StarknetHomepage {
     use option::OptionTrait;
     use array::ArrayTrait;
     use core::traits::Into;
+    use integer::{u256_safe_divmod, u256_try_as_non_zero};
     use super::{IERC20Dispatcher, IERC20DispatcherTrait};
     use super::StoreFelt252Array;
 
@@ -257,12 +260,12 @@ mod StarknetHomepage {
         }
 
         fn setTokenImg(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
-            assert(self.ownerOf(token_id)==get_caller_address(),'Only owner can set image.');
+            assert(self.ownerOf(token_id) == get_caller_address(), 'Only owner can set image.');
             self.img.write(token_id, _img);
         }
 
         fn setTokenLink(ref self: ContractState, token_id: u256, _link: Array<felt252>) {
-            assert(self.ownerOf(token_id)==get_caller_address(),'Only owner can set link.');
+            assert(self.ownerOf(token_id) == get_caller_address(), 'Only owner can set link.');
             self.link.write(token_id, _link);
         }
 
@@ -317,6 +320,39 @@ mod StarknetHomepage {
             };
             return (cell);
         }
+        fn withdraw(ref self: ContractState) {
+            let eth_l2_address: ContractAddress =
+                contract_address_const::<0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7>();
+
+            //TODO: Set with real addresses
+            let address1: ContractAddress =
+                contract_address_const::<0x101356c264081a17e120655aa917f6fd372961315ff565d41417d66746495b3>();
+
+            let address2: ContractAddress =
+                contract_address_const::<0x039618efb43fb60252d7804bc8cbce49863c4eab0c8f9b53dd8a53f15747889d>();
+
+            //Only these two contracts can call withdraw
+            assert(
+                address1 == get_caller_address() || address2 == get_caller_address(),
+                'Only owner can set image.'
+            );
+            // Get current balance and calculate percentages
+            let current_balance: u256 = IERC20Dispatcher { contract_address: eth_l2_address }
+                .balanceOf(contract_address_to_felt252(get_contract_address()));
+            let (pct70, r1, _) = u256_safe_divmod(
+                current_balance * 70, u256_try_as_non_zero(100_u256).unwrap()
+            );
+            let (pct30, r2, _) = u256_safe_divmod(
+                current_balance * 30, u256_try_as_non_zero(100_u256).unwrap()
+            );
+
+            // Transfer amounts
+            IERC20Dispatcher { contract_address: eth_l2_address }
+                .transfer(contract_address_to_felt252(address1), pct70);
+
+            IERC20Dispatcher { contract_address: eth_l2_address }
+                .transfer(contract_address_to_felt252(address2), pct30);
+        }
     }
 
 
@@ -328,7 +364,7 @@ mod StarknetHomepage {
             // Validate zero size
             assert(_width > 0_u8, 'Invalid size');
             assert(_height > 0_u8, 'Invalid size');
-        
+
             // Validar que las posiciones no se salen de la matrix
             assert(_xpos + _width <= 100_u8, 'Minting an invalid position');
             assert(_ypos + _height <= 100_u8, 'Minting an invalid position');
