@@ -77,7 +77,6 @@ const Cell: React.FC<CellProps> = ({
       onMouseDown={() => handleMouseDown(row, col)}
       onMouseEnter={() => handleMouseEnter(row, col)}
       onClick={handleCellClick}
-      //  title={nft.title} once this is added
     ></div>
   );
 

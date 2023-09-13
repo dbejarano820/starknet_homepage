@@ -365,12 +365,12 @@ mod StarknetHomepage {
             assert(_width > 0_u8, 'Invalid size');
             assert(_height > 0_u8, 'Invalid size');
 
-            // Validar que las posiciones no se salen de la matrix
+            // Validate positions don't exit the matrix
             assert(_xpos + _width <= 100_u8, 'Minting an invalid position');
             assert(_ypos + _height <= 100_u8, 'Minting an invalid position');
-            // Validar que las posiciones no se encuentran minteadas
+            // Validate the positions aren't already minted
             loop {
-                // Si llegamos al final entonces salimos del loop
+                // Break if we are done checking the matrix
                 if y == (_ypos + _height) {
                     break;
                 };
@@ -378,22 +378,22 @@ mod StarknetHomepage {
                 x = _xpos;
 
                 loop {
-                    // Si llegamos al final salimos del loop
+                    // Break if we are done checking the row
                     if x == (_xpos + _width) {
                         break;
                     };
 
-                    // Valida posicion
+                    // Validate the position
                     let minted: bool = self.matrix.read((x, y));
                     assert(!minted, 'Some position already minted.');
 
-                    // Si no esta minteada entonces marcamos la posicion como minteada
+                    // If it's not minted, then mark it as such
                     self.matrix.write((x, y), true);
 
-                    // Avanza una casilla a la derecha
+                    // Move a cell to the right
                     x += 1;
                 };
-                // Avanza una casilla hacia abajo
+                // Move a cell down
                 y += 1;
             };
         }
