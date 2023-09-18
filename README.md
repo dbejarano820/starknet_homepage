@@ -1,6 +1,8 @@
 # Starknet Homepage
 This project pays homage to the infamous [Million Dollar Homepage](http://www.milliondollarhomepage.com/).
 
+Can be found at starknet-homepage.vercel.app/
+
 ## Overview
 Starknet Homepage is a decentralized web application built on the Starknet blockchain. The main idea behind this project is to create a virtual space where users can own and customize small pieces of a 100x100 grid called "Starknet Homepage". Each block represents a 10x10 pixel area, and users can purchase these blocks by minting non-fungible tokens (NFTs) that they can customize with images and other details.
 
@@ -11,6 +13,4 @@ Starknet Homepage goes beyond just being a canvas; it aims to be the go-to hub f
 By embodying the essence of decentralization and creativity, Starknet Homepage can become a reference point for anyone seeking to explore, contribute to, or experience the diverse landscape of the Starknet blockchain. It's a dynamic fusion of technology, art, and community that showcases the potential of blockchain-based collaboration and ownership in a visually captivating way. 
 
 Just as the Million Dollar Homepage left a mark on the early internet, Starknet Homepage strives to leave a lasting legacy within the world of decentralized applications and blockchain innovation.
-
-## Showcase
 
