@@ -126,7 +126,6 @@ mod StarknetHomepage {
 
         let mut unsafe_state = ERC721::unsafe_new_contract_state();
         ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
-        self.nft_counter.write(0);
     }
 
     #[external(v0)]
@@ -211,7 +210,7 @@ mod StarknetHomepage {
             _img: Array<felt252>,
             _link: Array<felt252>,
         ) {
-            self.validateMatrix(_xpos, _ypos, _width, _height);
+            self.updateMatrix(_xpos, _ypos, _width, _height);
 
             let cell_price: u256 = 1000000000000000_u256;
             let height: u256 = _height.into();
@@ -230,8 +229,6 @@ mod StarknetHomepage {
 
             let token_id: u256 = self.nft_counter.read();
             let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            let mut data: Array<felt252> = ArrayTrait::<felt252>::new();
-            data.append(0);
             ERC721::InternalImpl::_mint(ref unsafe_state, _to, token_id);
 
             self.xpos.write(token_id, _xpos);
@@ -334,10 +331,11 @@ mod StarknetHomepage {
             //Only these two contracts can call withdraw
             assert(
                 address1 == get_caller_address() || address2 == get_caller_address(),
-                'Only owner can set image.'
+                'This account cannot withdraw.'
             );
             // Get current balance and calculate percentages
-            let current_balance: u256 = IERC20Dispatcher { contract_address: eth_l2_address }
+            let starknet_eth = IERC20Dispatcher { contract_address: eth_l2_address };
+            let current_balance: u256 = starknet_eth
                 .balanceOf(contract_address_to_felt252(get_contract_address()));
             let (pct70, r1, _) = u256_safe_divmod(
                 current_balance * 70, u256_try_as_non_zero(100_u256).unwrap()
@@ -347,10 +345,10 @@ mod StarknetHomepage {
             );
 
             // Transfer amounts
-            IERC20Dispatcher { contract_address: eth_l2_address }
+            starknet_eth
                 .transfer(contract_address_to_felt252(address1), pct70);
 
-            IERC20Dispatcher { contract_address: eth_l2_address }
+            starknet_eth
                 .transfer(contract_address_to_felt252(address2), pct30);
         }
     }
@@ -358,7 +356,7 @@ mod StarknetHomepage {
 
     #[generate_trait]
     impl PrivateFunctons of PrivateFunctionsTrait {
-        fn validateMatrix(ref self: ContractState, _xpos: u8, _ypos: u8, _width: u8, _height: u8) {
+        fn updateMatrix(ref self: ContractState, _xpos: u8, _ypos: u8, _width: u8, _height: u8) {
             let mut y: u8 = _ypos;
             let mut x: u8 = _xpos;
             // Validate zero size
