@@ -360,16 +360,18 @@ mod StarknetHomepage {
             let mut y: u8 = _ypos;
             let mut x: u8 = _xpos;
             // Validate zero size
+            let xend = _xpos + _width; 
+            let yend = _ypos + _height;
             assert(_width > 0_u8, 'Invalid size');
             assert(_height > 0_u8, 'Invalid size');
 
             // Validate positions don't exit the matrix
-            assert(_xpos + _width <= 100_u8, 'Minting an invalid position');
-            assert(_ypos + _height <= 100_u8, 'Minting an invalid position');
+            assert(xend <= 100_u8, 'Minting an invalid position');
+            assert(yend <= 100_u8, 'Minting an invalid position');
             // Validate the positions aren't already minted
             loop {
                 // Break if we are done checking the matrix
-                if y == (_ypos + _height) {
+                if y == yend {
                     break;
                 };
 
@@ -377,7 +379,7 @@ mod StarknetHomepage {
 
                 loop {
                     // Break if we are done checking the row
-                    if x == (_xpos + _width) {
+                    if x == xend {
                         break;
                     };
 
