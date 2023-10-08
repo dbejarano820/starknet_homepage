@@ -76,7 +76,7 @@ impl StoreFelt252Array of Store<Array<felt252>> {
     }
 
     fn size() -> u8 {
-        1_u8 + Store::<felt252>::size()
+        255 / Store::<felt252>::size()
     }
 }
 
