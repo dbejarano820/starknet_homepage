@@ -117,6 +117,36 @@ mod StarknetHomepage {
         link: LegacyMap::<u256, Array<felt252>>,
         nft_counter: u256,
         matrix: LegacyMap::<(u8, u8), bool>,
+        token_uri: Array<felt252>,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Transfer: Transfer,
+        Approval: Approval,
+        ApprovalForAll: ApprovalForAll
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Transfer {
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Approval {
+        owner: ContractAddress,
+        approved: ContractAddress,
+        token_id: u256
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct ApprovalForAll {
+        owner: ContractAddress,
+        operator: ContractAddress,
+        approved: bool
     }
 
     #[constructor]
@@ -146,9 +176,29 @@ mod StarknetHomepage {
             ERC721::ERC721MetadataImpl::symbol(@unsafe_state)
         }
 
-        fn tokenUri(self: @ContractState, token_id: u256) -> felt252 {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721MetadataImpl::token_uri(@unsafe_state, token_id)
+        fn setTokenUri(ref self: ContractState, _token_uri: Array<felt252>) {
+            //TODO: Set with real addresses
+            let address1: ContractAddress =
+                contract_address_const::<0x101356c264081a17e120655aa917f6fd372961315ff565d41417d66746495b3>();
+
+            let address2: ContractAddress =
+                contract_address_const::<0x039618efb43fb60252d7804bc8cbce49863c4eab0c8f9b53dd8a53f15747889d>();
+
+            //Only these two contracts can change token_uri
+            assert(
+                address1 == get_caller_address() || address2 == get_caller_address(),
+                'This account cannot update uri.'
+            );
+
+            self.token_uri.write(_token_uri);
+        }
+
+        fn tokenURI(self: @ContractState, token_id: u256) -> Array<felt252> {
+            let mut token_uri: Array<felt252> = ArrayTrait::<felt252>::new();
+            token_uri = self.token_uri.read();
+            token_uri.append(48+token_id.try_into().unwrap());
+            token_uri.append(199354445678); // str_to_felt(".json")
+            token_uri
         }
 
         fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
