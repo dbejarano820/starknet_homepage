@@ -126,8 +126,8 @@ mod StarknetHomepage {
         Transfer: Transfer,
         Approval: Approval,
         ApprovalForAll: ApprovalForAll,
-        MetadataUpdated: MetadataUpdated,
-        BatchMetadataUpdated: BatchMetadataUpdated,
+        MetadataUpdate: MetadataUpdate,
+        BatchMetadataUpdate: BatchMetadataUpdate,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -152,12 +152,12 @@ mod StarknetHomepage {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct MetadataUpdated {
+    struct MetadataUpdate {
         token_id: u256,
     }
 
     #[derive(Drop, starknet::Event)]
-    struct BatchMetadataUpdated {
+    struct BatchMetadataUpdate {
         from_token_id: u256,
         token_id: u256,
     }
@@ -326,13 +326,13 @@ mod StarknetHomepage {
         fn setTokenImg(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
             assert(self.ownerOf(token_id) == get_caller_address(), 'Only owner can set image.');
             self.img.write(token_id, _img);
-            self.emit(MetadataUpdated { token_id: token_id });
+            self.emit(MetadataUpdate { token_id: token_id });
         }
 
         fn setTokenLink(ref self: ContractState, token_id: u256, _link: Array<felt252>) {
             assert(self.ownerOf(token_id) == get_caller_address(), 'Only owner can set link.');
             self.link.write(token_id, _link);
-            self.emit(MetadataUpdated { token_id: token_id });
+            self.emit(MetadataUpdate { token_id: token_id });
         }
 
         fn getTokensByOwner(self: @ContractState, _address: ContractAddress) -> Array<Cell> {
