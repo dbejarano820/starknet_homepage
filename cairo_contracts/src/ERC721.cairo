@@ -125,7 +125,9 @@ mod StarknetHomepage {
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
-        ApprovalForAll: ApprovalForAll
+        ApprovalForAll: ApprovalForAll,
+        MetadataUpdated: MetadataUpdated,
+        BatchMetadataUpdated: BatchMetadataUpdated,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -149,6 +151,17 @@ mod StarknetHomepage {
         approved: bool
     }
 
+    #[derive(Drop, starknet::Event)]
+    struct MetadataUpdated {
+        token_id: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct BatchMetadataUpdated {
+        from_token_id: u256,
+        token_id: u256,
+    }
+
     #[constructor]
     fn constructor(ref self: ContractState,) {
         let name = 'StarknetHomepage';
@@ -162,6 +175,10 @@ mod StarknetHomepage {
     #[generate_trait]
     impl IStarknetHomepageImpl of IStarknetHomepage {
         fn supportsInterface(self: @ContractState, interface_id: felt252) -> bool {
+            //Adds support for MetadataUpdated as indicated in eip-4906
+            if interface_id == 0x49064906 {
+                return true;
+            };
             let unsafe_state = ERC721::unsafe_new_contract_state();
             ERC721::SRC5Impl::supports_interface(@unsafe_state, interface_id)
         }
@@ -309,11 +326,13 @@ mod StarknetHomepage {
         fn setTokenImg(ref self: ContractState, token_id: u256, _img: Array<felt252>) {
             assert(self.ownerOf(token_id) == get_caller_address(), 'Only owner can set image.');
             self.img.write(token_id, _img);
+            self.emit(MetadataUpdated { token_id: token_id });
         }
 
         fn setTokenLink(ref self: ContractState, token_id: u256, _link: Array<felt252>) {
             assert(self.ownerOf(token_id) == get_caller_address(), 'Only owner can set link.');
             self.link.write(token_id, _link);
+            self.emit(MetadataUpdated { token_id: token_id });
         }
 
         fn getTokensByOwner(self: @ContractState, _address: ContractAddress) -> Array<Cell> {
